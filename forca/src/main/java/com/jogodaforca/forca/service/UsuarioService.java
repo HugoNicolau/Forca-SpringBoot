@@ -38,4 +38,11 @@ public class UsuarioService {
         // Salvar no banco de dados
         return usuarioRepository.save(usuario);
     }
+    
+    // Método para autenticação de usuário
+    public Usuario autenticar(String login, String senha) {
+        return usuarioRepository.findByLogin(login)
+                .filter(usuario -> usuario.getSenha().equals(senha))
+                .orElseThrow(() -> new IllegalArgumentException("Login ou senha inválidos"));
+    }
 }
