@@ -34,8 +34,16 @@ const API = {
     return this.get(`${this.BASE_URL}/partidas/usuario/${usuarioId}`);
   },
   
+  async listarPartidasDetalhadasUsuario(usuarioId) {
+    return this.get(`${this.BASE_URL}/partidas/usuario/${usuarioId}/detalhadas`);
+  },
+  
   async getPartida(partidaId) {
     return this.get(`${this.BASE_URL}/partidas/${partidaId}`);
+  },
+  
+  async getPartidaDetalhada(partidaId) {
+    return this.get(`${this.BASE_URL}/partidas/${partidaId}/detalhada`);
   },
   
   // Ranking

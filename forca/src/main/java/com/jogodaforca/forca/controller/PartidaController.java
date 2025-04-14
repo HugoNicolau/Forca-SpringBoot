@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.jogodaforca.forca.dto.IniciarPartidaComDificuldadeDTO;
 import com.jogodaforca.forca.dto.IniciarPartidaDTO;
 import com.jogodaforca.forca.dto.PartidaDTO;
+import com.jogodaforca.forca.dto.PartidaDetalhadaDTO;
 import com.jogodaforca.forca.dto.TentativaDTO;
 import com.jogodaforca.forca.model.Partida;
 import com.jogodaforca.forca.service.PartidaService;
@@ -116,5 +117,27 @@ public class PartidaController {
             error.put("mensagem", resultado.getMensagem());
             return ResponseEntity.badRequest().body(error);
         }
+    }
+
+    @GetMapping("/{partidaId}/detalhada")
+    public ResponseEntity<?> getPartidaDetalhada(@PathVariable Long partidaId) {
+        Resultado<Partida> resultado = partidaService.buscarPartida(partidaId);
+        
+        if (resultado.isSucesso()) {
+            return ResponseEntity.ok(PartidaDetalhadaDTO.fromPartida(resultado.getDados()));
+        } else {
+            Map<String, String> error = new HashMap<>();
+            error.put("mensagem", resultado.getMensagem());
+            return ResponseEntity.badRequest().body(error);
+        }
+    }
+
+    @GetMapping("/usuario/{usuarioId}/detalhadas")
+    public ResponseEntity<List<PartidaDetalhadaDTO>> listarPartidasDetalhadasUsuario(@PathVariable Long usuarioId) {
+        List<Partida> partidas = partidaService.listarPartidasPorUsuario(usuarioId);
+        List<PartidaDetalhadaDTO> partidasDTO = partidas.stream()
+                .map(PartidaDetalhadaDTO::fromPartida)
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(partidasDTO);
     }
 }

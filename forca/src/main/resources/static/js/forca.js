@@ -212,24 +212,33 @@ document.addEventListener('DOMContentLoaded', () => {
     jogo.modalTitulo.textContent = titulo;
     jogo.modalMensagem.textContent = mensagem;
     
-    // Buscar a palavra completa se necessário
-    API.getPartida(partidaAtual.id).then(partida => {
-      jogo.modalPalavra.textContent = `A palavra era: ${partida.palavraSecreta || partidaAtual.palavraAtual}`;
+    try {
+      // Buscar a partida detalhada para obter a palavra secreta completa
+      const partidaDetalhada = await API.getPartidaDetalhada(partidaAtual.id);
+      
+      // Se o status não é EM_ANDAMENTO, a palavra secreta deve ser mostrada completa
+      if (partidaAtual.status !== 'EM_ANDAMENTO' && partidaDetalhada.palavraSecreta) {
+        jogo.modalPalavra.textContent = `A palavra era: ${partidaDetalhada.palavraSecreta}`;
+      } else {
+        jogo.modalPalavra.textContent = `A palavra era: ${partidaAtual.palavraAtual}`;
+      }
+      
       jogo.modal.classList.remove('hidden');
-    }).catch(error => {
+    } catch (error) {
+      console.error('Erro ao obter detalhes da partida:', error);
       jogo.modalPalavra.textContent = `A palavra era: ${partidaAtual.palavraAtual}`;
       jogo.modal.classList.remove('hidden');
-    });
+    }
 
     // Atualizar dados do usuário logado após o fim da partida
     if (usuarioLogado) {
-        try {
-            const usuarioAtualizado = await API.obterUsuario(usuarioLogado.id);
-            usuarioLogado = usuarioAtualizado;
-            localStorage.setItem('usuario', JSON.stringify(usuarioLogado));
-        } catch (error) {
-            console.error('Erro ao atualizar dados do usuário:', error);
-        }
+      try {
+        const usuarioAtualizado = await API.obterUsuario(usuarioLogado.id);
+        usuarioLogado = usuarioAtualizado;
+        localStorage.setItem('usuario', JSON.stringify(usuarioLogado));
+      } catch (error) {
+        console.error('Erro ao atualizar dados do usuário:', error);
+      }
     }
   }
   
@@ -290,7 +299,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
   
-  // Função para carregar dados do perfil do usuário - versão atualizada
+  // Carregar dados do perfil do usuário
   async function carregarPerfilUsuario() {
     if (!usuarioLogado) return;
     
@@ -305,17 +314,18 @@ document.addEventListener('DOMContentLoaded', () => {
       // Atualizar a interface
       document.getElementById('perfil-nome').textContent = usuarioLogado.nome;
       document.getElementById('perfil-login').textContent = usuarioLogado.login;
-      document.getElementById('perfil-vitorias').textContent = usuarioLogado.vitorias;
-      document.getElementById('perfil-derrotas').textContent = usuarioLogado.derrotas;
-      document.getElementById('perfil-winrate').textContent = `${(usuarioLogado.winRate * 100).toFixed(1)}%`;
+      document.getElementById('perfil-vitorias').textContent = usuarioLogado.vitorias || 0;
+      document.getElementById('perfil-derrotas').textContent = usuarioLogado.derrotas || 0;
+      document.getElementById('perfil-winrate').textContent = `${((usuarioLogado.winRate || 0) * 100).toFixed(1)}%`;
       
       // Carregar histórico de partidas
-      const partidas = await API.listarPartidasUsuario(usuarioLogado.id);
+      const partidas = await API.listarPartidasDetalhadasUsuario(usuarioLogado.id);
       const historicoContainer = document.getElementById('historico-partidas');
       
       if (partidas && partidas.length > 0) {
         historicoContainer.innerHTML = '';
-        partidas.forEach(partida => {
+        
+        for (const partida of partidas) {
           const dataPartida = new Date(partida.dataInicio);
           const formatoData = new Intl.DateTimeFormat('pt-BR', { 
             dateStyle: 'short', 
@@ -327,34 +337,39 @@ document.addEventListener('DOMContentLoaded', () => {
           
           let statusText = '';
           let statusClass = '';
+          let palavraMostrada = '';
           
           switch(partida.status) {
             case 'VENCEU':
               statusText = 'Vitória';
               statusClass = 'text-success';
+              palavraMostrada = partida.palavraSecreta || partida.palavraAtual;
               break;
             case 'PERDEU':
               statusText = 'Derrota';
               statusClass = 'text-danger';
+              palavraMostrada = partida.palavraSecreta || partida.palavraAtual;
               break;
             case 'DESISTIU':
               statusText = 'Desistência';
               statusClass = 'text-warning';
+              palavraMostrada = partida.palavraSecreta || partida.palavraAtual;
               break;
             case 'EM_ANDAMENTO':
               statusText = 'Em andamento';
               statusClass = 'text-info';
+              palavraMostrada = partida.palavraAtual;
               break;
           }
           
           divPartida.innerHTML = `
             <p><strong>Data:</strong> ${formatoData}</p>
-            <p><strong>Palavra:</strong> ${partida.palavraAtual}</p>
+            <p><strong>Palavra:</strong> ${palavraMostrada}</p>
             <p><strong>Status:</strong> <span class="${statusClass}">${statusText}</span></p>
           `;
           
           historicoContainer.appendChild(divPartida);
-        });
+        }
       } else {
         historicoContainer.innerHTML = '<p class="text-center">Nenhuma partida encontrada</p>';
       }
