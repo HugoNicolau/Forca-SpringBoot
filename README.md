@@ -25,7 +25,7 @@ O jogo permite que os jogadores tentem adivinhar uma palavra secreta, letra por 
 1. **Clone o repositório** (ou baixe o código-fonte):
 
 ```bash
-git clone https://github.com/seu-usuario/Forca-SpringBoot.git
+git clone https://github.com/HugoNicolau/Forca-SpringBoot.git
 cd Forca-SpringBoot
 ```
 
@@ -47,7 +47,7 @@ http://localhost:8080
 
 Se você estiver desenvolvendo o projeto, recomendamos adicionar o Spring Boot DevTools para habilitar o recarregamento automático:
 
-1. Adicione a dependência no pom.xml:
+1. Caso não tenha, adicione a dependência no pom.xml:
 ```xml
 <dependency>
     <groupId>org.springframework.boot</groupId>
@@ -151,7 +151,29 @@ O projeto segue uma arquitetura orientada a objetos com hierarquia de classes be
 - **Polimorfismo**: Diferentes tipos de jogadores com comportamentos específicos
 - **Abstração**: Classes abstratas como `BaseEntity` e interfaces definem contratos
 
-Um diagrama UML completo está disponível no arquivo UML-classes.puml na raiz do projeto.
+### Diagramas UML
+
+Este projeto inclui diagramas UML detalhados para facilitar a compreensão da arquitetura:
+
+1. **[Diagrama UML completo (UML.puml)](UML.puml)**: Diagrama completo do sistema
+   - Contém todas as classes, interfaces, relacionamentos e pacotes
+   - Visão abrangente da arquitetura do projeto
+
+2. **[Diagrama de Classes (UML-classes.puml)](UML-classes.puml)**: Foco nas classes principais
+   - Mostra as principais classes do modelo e suas relações
+   - Simplificado para melhor visualização da estrutura principal
+
+3. **[Diagrama de Models e DTOs (UML-models.puml)](UML-models.puml)**: Detalha as entidades e objetos de transferência
+   - Visualiza a estrutura de dados e relacionamentos entre entidades
+   - Mostra a conversão entre entidades e DTOs
+
+![Diagrama UML do Sistema](uml-image.png)
+*Diagrama UML gerado a partir do arquivo UML_FOR_IMAGE.puml*
+
+Para visualizar os diagramas PlantUML, você pode:
+- Usar plugins PlantUML disponíveis para IDEs como IntelliJ IDEA, Visual Studio Code ou Eclipse
+- Usar o [PlantUML Server online](http://www.plantuml.com/plantuml/uml/) copiando o conteúdo dos arquivos .puml
+- Visualizar diretamente no GitHub (se estiver usando o GitHub com extensões que suportam PlantUML)
 
 ## Tecnologias Utilizadas
 

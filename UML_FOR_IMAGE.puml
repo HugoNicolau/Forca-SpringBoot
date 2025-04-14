@@ -1,0 +1,456 @@
+@startuml
+!theme cyborg
+
+skinparam classAttributeIconSize 0
+skinparam classFontStyle bold
+skinparam classBackgroundColor #f5f5f5
+skinparam classBorderColor #999999
+skinparam packageBackgroundColor transparent
+
+package "model" {
+  abstract class BaseEntity {
+    -Long id
+    -LocalDateTime criadoEm
+    -LocalDateTime atualizadoEm
+    #void onCreate()
+    #void onUpdate()
+    +{abstract} Object toDTO()
+    +Long getId()
+    +void setId(Long id)
+    +LocalDateTime getCriadoEm()
+    +LocalDateTime getAtualizadoEm()
+  }
+  
+  class Usuario extends BaseEntity {
+    -String nome
+    -String login
+    -String senha
+    -int vitorias
+    -int derrotas
+    -List<Partida> partidas
+    +String getNome()
+    +void setNome(String nome)
+    +String getLogin()
+    +void setLogin(String login)
+    +String getSenha()
+    +void setSenha(String senha)
+    +int getVitorias()
+    +void setVitorias(int vitorias)
+    +int getDerrotas()
+    +void setDerrotas(int derrotas)
+    +double getWinRate()
+    +List<Partida> getPartidas()
+    +void setPartidas(List<Partida> partidas)
+    +Object toDTO()
+    +void incrementarVitorias()
+    +void incrementarDerrotas()
+  }
+  
+  class Palavra extends BaseEntity {
+    -String palavraSecreta
+    -String dica
+    -boolean customizada
+    +Palavra()
+    +Palavra(String palavraSecreta, String dica)
+    +boolean contemLetra(char letra)
+    +boolean contemLetra(char letra, boolean ignorarAcentos)
+    +String formatarPalavra()
+    +String formatarPalavra(char[] letrasDescobertas)
+    +String getPalavraSecreta()
+    +void setPalavraSecreta(String palavraSecreta)
+    +String getDica()
+    +void setDica(String dica)
+    +boolean isCustomizada()
+    +void setCustomizada(boolean customizada)
+    +Object toDTO()
+  }
+  
+  class Partida extends BaseEntity {
+    -static final int TENTATIVAS_PADRAO = 6
+    -static final int TENTATIVAS_FACIL = 8
+    -static final int TENTATIVAS_DIFICIL = 4
+    -Usuario usuario
+    -Palavra palavra
+    -List<LetraTentada> letrasTentadas
+    -EstadoDaForca estado
+    -LocalDateTime dataInicio
+    -LocalDateTime dataFim
+    -StatusPartida status
+    +Partida()
+    +Partida(Usuario usuario, Palavra palavra)
+    +Partida(Usuario usuario, Palavra palavra, String dificuldade)
+    +boolean tentarLetra(char letra)
+    +boolean contemLetraTentada(char letra)
+    +String getPalavraAtual()
+    +void desistir()
+    +Usuario getUsuario()
+    +void setUsuario(Usuario usuario)
+    +Palavra getPalavra()
+    +void setPalavra(Palavra palavra)
+    +List<LetraTentada> getLetrasTentadas()
+    +void setLetrasTentadas(List<LetraTentada> letrasTentadas)
+    +EstadoDaForca getEstado()
+    +void setEstado(EstadoDaForca estado)
+    +LocalDateTime getDataInicio()
+    +void setDataInicio(LocalDateTime dataInicio)
+    +LocalDateTime getDataFim()
+    +void setDataFim(LocalDateTime dataFim)
+    +StatusPartida getStatus()
+    +void setStatus(StatusPartida status)
+    -void finalizarComoVitoria()
+    -void finalizarComoDerrota()
+    +Object toDTO()
+  }
+  
+  class LetraTentada extends BaseEntity {
+    -char letra
+    -boolean acerto
+    -Partida partida
+    -LocalDateTime momento
+    +LetraTentada()
+    +LetraTentada(char letra, boolean acerto)
+    +char getLetra()
+    +void setLetra(char letra)
+    +boolean isAcerto()
+    +void setAcerto(boolean acerto)
+    +Partida getPartida()
+    +void setPartida(Partida partida)
+    +LocalDateTime getMomento()
+    +void setMomento(LocalDateTime momento)
+    +Object toDTO()
+  }
+  
+  class EstadoDaForca {
+    -int tentativasRestantes
+    -char[] letrasCorretas
+    -char[] letrasErradas
+    +EstadoDaForca()
+    +EstadoDaForca(int tentativasRestantes)
+    +boolean tentarLetra(char letra, String palavraSecreta)
+    +String getPalavraAtual(String palavraSecreta)
+    +boolean verificarVitoria(String palavraSecreta)
+    +boolean verificarDerrota()
+    +int getTentativasRestantes()
+    +void setTentativasRestantes(int tentativasRestantes)
+    +Set<Character> getLetrasCorretasSet()
+    +Set<Character> getLetrasErradasSet()
+    +String toString()
+  }
+  
+  enum StatusPartida {
+    EM_ANDAMENTO
+    VENCEU
+    PERDEU
+    DESISTIU
+  }
+  
+  abstract class Jogador extends BaseEntity {
+    -String nome
+    #int nivel
+    ~int experiencia
+    +String tipoJogador
+    -ConfiguracaoJogador configuracao
+    -void metodoPrivado()
+    #void metodoProtegido()
+    ~void metodoPackage()
+    +void metodoPublico()
+    +{abstract} Palavra escolherPalavra()
+    +int calcularPontuacao(int tentativasRestantes, int tamanhoPalavra)
+    +String getNome()
+    +void setNome(String nome)
+    +String getTipoJogador()
+    +void setTipoJogador(String tipo)
+    +ConfiguracaoJogador getConfiguracao()
+    +void setConfiguracao(ConfiguracaoJogador config)
+  }
+  
+  class JogadorHumano extends Jogador {
+    -Usuario usuario
+    +JogadorHumano()
+    +JogadorHumano(Usuario usuario)
+    +Palavra escolherPalavra()
+    +Usuario getUsuario()
+    +void setUsuario(Usuario usuario)
+    +Object toDTO()
+  }
+  
+  class JogadorBot extends Jogador {
+    -String nivelDificuldade
+    +JogadorBot()
+    +JogadorBot(String nome, String nivelDificuldade)
+    +Palavra escolherPalavra()
+    +String getNivelDificuldade()
+    +void setNivelDificuldade(String nivel)
+    +Object toDTO()
+  }
+  
+  class ConfiguracaoJogador {
+    -String tema
+    -String dificuldade
+    -boolean notificacoesAtivadas
+    +ConfiguracaoJogador()
+    +ConfiguracaoJogador(String tema, String dificuldade, boolean notificacoes)
+    +String getTema()
+    +void setTema(String tema)
+    +String getDificuldade()
+    +void setDificuldade(String dificuldade)
+    +boolean isNotificacoesAtivadas()
+    +void setNotificacoesAtivadas(boolean notificacoes)
+  }
+
+  class Equipe extends BaseEntity {
+    -String nome
+    -List<JogadorHumano> jogadores
+    +String getNome()
+    +void setNome(String nome)
+    +List<JogadorHumano> getJogadores()
+    +void setJogadores(List<JogadorHumano> jogadores)
+    +int getPontuacaoTotal()
+    +int getQuantidadeJogadores()
+    +void adicionarJogador(JogadorHumano jogador)
+    +void removerJogador(JogadorHumano jogador)
+    +Object toDTO()
+  }
+  
+  interface EstatisticaCalculavel {
+    +double getWinRate()
+    +int getTotalPartidas()
+  }
+}
+
+package "dto" {
+  abstract class BaseDTO {
+    -Long id
+    -LocalDateTime criadoEm
+    -LocalDateTime atualizadoEm
+    +Long getId()
+    +void setId(Long id)
+    +LocalDateTime getCriadoEm()
+    +void setCriadoEm(LocalDateTime criadoEm)
+    +LocalDateTime getAtualizadoEm()
+    +void setAtualizadoEm(LocalDateTime atualizadoEm)
+  }
+  
+  class EquipeDTO extends BaseDTO {
+    -String nome
+    -int pontuacaoTotal
+    -int quantidadeJogadores
+    -List<Long> jogadoresIds
+    +static EquipeDTO fromEquipe(Equipe equipe)
+    +String getNome()
+    +void setNome(String nome)
+    +int getPontuacaoTotal()
+    +void setPontuacaoTotal(int pontuacaoTotal)
+    +int getQuantidadeJogadores()
+    +void setQuantidadeJogadores(int quantidade)
+    +List<Long> getJogadoresIds()
+    +void setJogadoresIds(List<Long> ids)
+  }
+  
+  class JogadorDTO extends BaseDTO {
+    -String nome
+    -String tipo
+    +static JogadorDTO fromJogador(Jogador jogador)
+    +String getNome()
+    +void setNome(String nome)
+    +String getTipo()
+    +void setTipo(String tipo)
+  }
+  
+  class PartidaDTO extends BaseDTO {
+    -Long usuarioId
+    -String nomeUsuario
+    -String palavraAtual
+    -String dica
+    -int tentativasRestantes
+    -Set<Character> letrasCorretas
+    -Set<Character> letrasErradas
+    -StatusPartida status
+    -LocalDateTime dataInicio
+    -LocalDateTime dataFim
+    +static PartidaDTO fromPartida(Partida partida)
+    +Long getUsuarioId()
+    +void setUsuarioId(Long id)
+    +String getNomeUsuario()
+    +void setNomeUsuario(String nome)
+    +String getPalavraAtual()
+    +void setPalavraAtual(String palavra)
+    +String getDica()
+    +void setDica(String dica)
+    +int getTentativasRestantes()
+    +void setTentativasRestantes(int tentativas)
+    +Set<Character> getLetrasCorretas()
+    +void setLetrasCorretas(Set<Character> letras)
+    +Set<Character> getLetrasErradas()
+    +void setLetrasErradas(Set<Character> letras)
+    +StatusPartida getStatus()
+    +void setStatus(StatusPartida status)
+    +LocalDateTime getDataInicio()
+    +void setDataInicio(LocalDateTime data)
+    +LocalDateTime getDataFim()
+    +void setDataFim(LocalDateTime data)
+  }
+  
+  class PartidaDetalhadaDTO extends PartidaDTO {
+    -List<TentativaDTO> historicoTentativas
+    -String palavraSecreta
+    +static PartidaDetalhadaDTO fromPartida(Partida partida)
+    +PartidaDetalhadaDTO(PartidaDTO baseDto)
+    +List<TentativaDTO> getHistoricoTentativas()
+    +void setHistoricoTentativas(List<TentativaDTO> tentativas)
+    +String getPalavraSecreta()
+    +void setPalavraSecreta(String palavraSecreta)
+  }
+  
+  class PartidaResumidaDTO extends PartidaDTO {
+    +static PartidaResumidaDTO fromPartida(Partida partida)
+  }
+  
+  class PalavraDTO extends BaseDTO {
+    -String palavraSecreta
+    -String dica
+    +static PalavraDTO fromPalavra(Palavra palavra)
+    +String getPalavraSecreta()
+    +void setPalavraSecreta(String palavraSecreta)
+    +String getDica()
+    +void setDica(String dica)
+  }
+  
+  class TentativaDTO {
+    -char letra
+    -boolean acerto
+    -Long partidaId
+    -LocalDateTime momento
+    +static TentativaDTO fromLetraTentada(LetraTentada letraTentada)
+    +char getLetra()
+    +void setLetra(char letra)
+    +boolean isAcerto()
+    +void setAcerto(boolean acerto)
+    +Long getPartidaId()
+    +void setPartidaId(Long id)
+    +LocalDateTime getMomento()
+    +void setMomento(LocalDateTime momento)
+  }
+  
+  class UsuarioDTO extends BaseDTO {
+    -String nome
+    -String login
+    -int vitorias
+    -int derrotas
+    +static UsuarioDTO fromUsuario(Usuario usuario)
+    +String getNome()
+    +void setNome(String nome)
+    +String getLogin()
+    +void setLogin(String login)
+    +int getVitorias()
+    +void setVitorias(int vitorias)
+    +int getDerrotas() 
+    +void setDerrotas(int derrotas)
+    +int getTotalPartidas()
+    +double getWinRate()
+  }
+  
+  class RankingDTO {
+    -Long id
+    -String nome
+    -int vitorias
+    -int derrotas
+    -int totalPartidas
+    -double winRate
+    +static RankingDTO fromUsuario(Usuario usuario)
+    +Long getId()
+    +void setId(Long id)
+    +String getNome()
+    +void setNome(String nome)
+    +int getVitorias()
+    +void setVitorias(int vitorias)
+    +int getDerrotas()
+    +void setDerrotas(int derrotas)
+    +int getTotalPartidas()
+    +void setTotalPartidas(int total)
+    +double getWinRate()
+    +void setWinRate(double taxa)
+  }
+  
+  class IniciarPartidaDTO {
+    -Long usuarioId
+    -String palavraCustomizada
+    -String dica
+    +Long getUsuarioId()
+    +void setUsuarioId(Long id)
+    +String getPalavraCustomizada()
+    +void setPalavraCustomizada(String palavra)
+    +String getDica()
+    +void setDica(String dica)
+  }
+  
+  class IniciarPartidaComDificuldadeDTO {
+    -Long usuarioId
+    -String palavraCustomizada
+    -String dica
+    -String dificuldade
+    +Long getUsuarioId()
+    +void setUsuarioId(Long id)
+    +String getPalavraCustomizada()
+    +void setPalavraCustomizada(String palavra)
+    +String getDica()
+    +void setDica(String dica)
+    +String getDificuldade()
+    +void setDificuldade(String dificuldade)
+  }
+  
+  class LoginDTO {
+    -String login
+    -String senha
+    +String getLogin()
+    +void setLogin(String login)
+    +String getSenha()
+    +void setSenha(String senha)
+  }
+}
+
+package "repository" {
+  interface JpaRepository<T, ID> {
+    +List<T> findAll()
+    +Optional<T> findById(ID id)
+    +<S extends T> S save(S entity)
+    +void deleteById(ID id)
+    +boolean existsById(ID id)
+    +long count()
+  }
+
+  interface EquipeRepository extends JpaRepository {
+    +List<Equipe> findByNomeContaining(String nome)
+  }
+  
+  interface JogadorHumanoRepository extends JpaRepository {
+  }
+  
+  interface PartidaRepository extends JpaRepository {
+    +List<Partida> findByUsuarioOrderByDataInicioDesc(Usuario usuario)
+  }
+  
+  interface PalavraRepository extends JpaRepository {
+    +Optional<Palavra> findRandomByIdNotIn(List<Long> ids)
+  }
+  
+  interface UsuarioRepository extends JpaRepository {
+    +Optional<Usuario> findByLogin(String login)
+  }
+}
+
+' Relacionamentos entre entidades (model)
+Usuario "1" o-- "*" Partida : tem >
+Partida "*" --o "1" Usuario : < pertence a
+Partida "1" *-- "1" EstadoDaForca : possui >
+Partida "1" *-- "1" Palavra : possui >
+Partida "1" o-- "*" LetraTentada : contém >
+LetraTentada "*" --o "1" Partida : < pertence a
+Jogador "1" *-- "1" ConfiguracaoJogador : possui >
+Equipe "1" o-- "*" JogadorHumano : contém >
+JogadorHumano "1" -- "1" Usuario : representa >
+
+' Implementação de interfaces
+Usuario ..|> EstatisticaCalculavel
+
+'
