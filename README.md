@@ -151,6 +151,107 @@ O projeto segue uma arquitetura orientada a objetos com hierarquia de classes be
 - **Polimorfismo**: Diferentes tipos de jogadores com comportamentos específicos
 - **Abstração**: Classes abstratas como `BaseEntity` e interfaces definem contratos
 
+### Conceitos de POO Aplicados
+
+Este projeto demonstra os principais conceitos de Programação Orientada a Objetos:
+
+#### Classes e Objetos
+- `Usuario`, `Partida`, `Palavra`, etc. representam entidades do mundo real como classes
+- Instâncias destas classes são criadas e manipuladas durante o jogo
+- Exemplo: `TentativaDTO` representa uma tentativa de letra no jogo da forca (src/main/java/com/jogodaforca/forca/dto/TentativaDTO.java)
+
+#### Encapsulamento
+- Atributos privados com getters/setters controlam o acesso aos dados
+- Exemplo: `private String senha;` em `Usuario` com métodos públicos para acesso controlado
+- Método `setLetra(char letra)` em `LetraTentada` valida e formata a entrada (src/main/java/com/jogodaforca/forca/model/LetraTentada.java)
+
+#### Herança (Generalização/Especialização)
+- `BaseEntity` é base para todas as entidades, fornecendo atributos comuns (id, timestamps)
+- `JogadorHumano` e `JogadorBot` herdam de `Jogador`
+- `PartidaResumidaDTO` e `PartidaDetalhadaDTO` estendem `PartidaDTO` para diferentes níveis de detalhamento
+- Exemplo: `public class Partida extends BaseEntity` (src/main/java/com/jogodaforca/forca/model/Partida.java)
+
+#### Polimorfismo
+- `Jogador` declara método abstrato `escolherPalavra()` implementado diferentemente em `JogadorHumano` e `JogadorBot`
+- `Usuario` implementa a interface `EstatisticaCalculavel` para ser tratado como tal
+- Sobrescrita de `toString()` em várias classes para representação personalizada
+- Exemplo: `@Override public int calcularPontuacao(...)` em `JogadorHumano` (src/main/java/com/jogodaforca/forca/model/JogadorHumano.java)
+
+#### Abstração
+- Interface `EstatisticaCalculavel` define comportamento sem detalhar implementação
+- Classe abstrata `BaseEntity` generaliza conceito de entidade persistente
+- Classe abstrata `Jogador` define comportamentos comuns sem implementação completa
+- Exemplo: `public abstract class Jogador extends BaseEntity` (src/main/java/com/jogodaforca/forca/model/Jogador.java)
+
+#### Modificadores de Acesso
+- `private`: Atributos como `senha` em `Usuario` para máximo encapsulamento
+- `protected`: `nivel` em `Jogador` permite acesso a subclasses mas protege de externos
+- Package-private (default): `experiencia` em `Jogador` acessível apenas no mesmo pacote
+- `public`: Métodos da API disponibilizados externamente
+- Exemplo: Diferentes modificadores na classe `Jogador` (src/main/java/com/jogodaforca/forca/model/Jogador.java)
+
+#### Associações
+- `Partida` tem associação com `Usuario` (um para muitos)
+- `Partida` tem associação com `Palavra` (um para um)
+- `Usuario` tem associação com múltiplas `Partida` (um para muitos)
+- Exemplo: `@ManyToOne private Usuario usuario;` em `Partida` (src/main/java/com/jogodaforca/forca/model/Partida.java)
+
+#### Composição
+- `ConfiguracaoJogador` é parte intrínseca do `Jogador` (não existe independentemente)
+- `@Embedded private ConfiguracaoJogador configuracao;` em `Jogador`
+- Exemplo: `@Embedded private ConfiguracaoJogador configuracao = new ConfiguracaoJogador();` (src/main/java/com/jogodaforca/forca/model/Jogador.java)
+
+#### Agregação
+- `Equipe` agrega `JogadorHumano` mas ambos existem independentemente
+- `List<JogadorHumano> jogadores` em `Equipe`
+- Exemplo: `@OneToMany(mappedBy = "equipe") private List<JogadorHumano> jogadores;` (src/main/java/com/jogodaforca/forca/model/Equipe.java)
+
+#### Coleções
+- Uso de `List<Partida>` em `Usuario` para armazenar as partidas do usuário
+- `Set<Character>` para armazenar letras corretas e erradas em `PartidaDTO`
+- `Map<ID, T>` em `Repositorio` para armazenar elementos por chave
+- Exemplo: `private List<Partida> partidas = new ArrayList<>();` em `Usuario` (src/main/java/com/jogodaforca/forca/model/Usuario.java)
+
+#### Classe Genérica (Generics)
+- `Resultado<T>` encapsula resultados de operações com tipo específico
+- `Repositorio<T, ID>` implementa repositório para qualquer tipo
+- Exemplo: `public class Resultado<T> {...}` (src/main/java/com/jogodaforca/forca/util/Resultado.java)
+
+#### Sobrecarga de Métodos
+- `Palavra` tem múltiplos construtores com diferentes parâmetros
+- `Partida` tem construtores com diferentes combinações de parâmetros
+- Exemplo: `public Partida()`, `public Partida(Usuario usuario, Palavra palavra)`, `public Partida(Usuario usuario, Palavra palavra, String dificuldade)` (src/main/java/com/jogodaforca/forca/model/Partida.java)
+
+#### Sobrescrita de Métodos
+- `toDTO()` implementado em todas as subclasses de `BaseEntity`
+- `escolherPalavra()` implementado em `JogadorHumano` e `JogadorBot`
+- Exemplo: `@Override public Object toDTO()` em `Usuario` (src/main/java/com/jogodaforca/forca/model/Usuario.java)
+
+#### Classes Abstratas
+- `BaseEntity` define comportamento comum a todas as entidades
+- `Jogador` define comportamento comum a todos os jogadores
+- Exemplo: `@MappedSuperclass public abstract class BaseEntity {...}` (src/main/java/com/jogodaforca/forca/model/BaseEntity.java)
+
+#### Interfaces
+- `EstatisticaCalculavel` define contrato para classes que fornecem estatísticas
+- `JpaRepository` e suas especializações definem contratos para acesso a dados
+- Exemplo: `public interface EstatisticaCalculavel {...}` (src/main/java/com/jogodaforca/forca/model/EstatisticaCalculavel.java)
+
+#### Atributos e Métodos Estáticos
+- `TENTATIVAS_PADRAO`, `TENTATIVAS_FACIL`, `TENTATIVAS_DIFICIL` em `Partida`
+- Métodos de fábrica estáticos em `Resultado`: `sucesso()`, `erro()`
+- Exemplo: `private static final int TENTATIVAS_PADRAO = 6;` em `Partida` (src/main/java/com/jogodaforca/forca/model/Partida.java)
+
+#### UML
+- Modelagem completa do sistema em UML (ver seção de Diagramas UML)
+- Representação visual de classes, atributos, métodos e relacionamentos
+- Exemplo: Diagrama UML mostrando herança, associações e multiplicidade (UML-classes.puml)
+
+#### Instanciação/Classificação
+- Criação de objetos concretos a partir de classes (instanciação)
+- Classificação de entidades em hierarquias (como tipos de jogadores)
+- Exemplo: `new LetraTentada(char letra, boolean acerto)` (src/main/java/com/jogodaforca/forca/model/LetraTentada.java)
+
 ### Diagramas UML
 
 Este projeto inclui diagramas UML detalhados para facilitar a compreensão da arquitetura:
@@ -163,9 +264,10 @@ Este projeto inclui diagramas UML detalhados para facilitar a compreensão da ar
    - Mostra as principais classes do modelo e suas relações
    - Simplificado para melhor visualização da estrutura principal
 
-3. **[Diagrama de Models e DTOs (UML-models.puml)](UML-models.puml)**: Detalha as entidades e objetos de transferência
+3. **[Diagrama de Models e DTOs (UML_FOR_IMAGE.puml)](UML_FOR_IMAGE.puml)**: Detalha as entidades e objetos de transferência
    - Visualiza a estrutura de dados e relacionamentos entre entidades
    - Mostra a conversão entre entidades e DTOs
+   - Só não mostra os repositories porque não coube na imagem.
 
 ![Diagrama UML do Sistema](uml-image.png)
 *Diagrama UML gerado a partir do arquivo UML_FOR_IMAGE.puml*
@@ -190,3 +292,4 @@ Para visualizar os diagramas PlantUML, você pode:
 ## Licença
 
 Este projeto está licenciado sob a licença MIT - consulte o arquivo LICENSE para obter detalhes.
+```
