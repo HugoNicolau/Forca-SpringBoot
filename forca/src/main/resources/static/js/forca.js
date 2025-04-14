@@ -191,7 +191,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
   
   // Mostrar resultado da partida
-  function mostrarResultado() {
+  async function mostrarResultado() {
     let titulo, mensagem;
     
     switch (partidaAtual.status) {
@@ -220,6 +220,17 @@ document.addEventListener('DOMContentLoaded', () => {
       jogo.modalPalavra.textContent = `A palavra era: ${partidaAtual.palavraAtual}`;
       jogo.modal.classList.remove('hidden');
     });
+
+    // Atualizar dados do usuário logado após o fim da partida
+    if (usuarioLogado) {
+        try {
+            const usuarioAtualizado = await API.obterUsuario(usuarioLogado.id);
+            usuarioLogado = usuarioAtualizado;
+            localStorage.setItem('usuario', JSON.stringify(usuarioLogado));
+        } catch (error) {
+            console.error('Erro ao atualizar dados do usuário:', error);
+        }
+    }
   }
   
   // Atualizar a interface com os dados da partida atual
@@ -244,13 +255,17 @@ document.addEventListener('DOMContentLoaded', () => {
     jogo.btnDesistir.disabled = false;
   }
   
-  // Carregar o ranking de jogadores
+  // Função para carregar o ranking - versão corrigida
   async function carregarRanking() {
     const tabelaBody = document.querySelector('#tabela-ranking tbody');
     tabelaBody.innerHTML = '<tr><td colspan="6" class="text-center">Carregando...</td></tr>';
     
     try {
-      const ranking = await API.obterRanking();
+      const response = await API.obterRanking();
+      console.log('Resposta do ranking:', response); // Adicionando log para debug
+      
+      // Verificar se a resposta é um objeto Resultado ou diretamente a lista
+      const ranking = response.dados || response;
       
       if (ranking && ranking.length > 0) {
         tabelaBody.innerHTML = '';
@@ -259,10 +274,10 @@ document.addEventListener('DOMContentLoaded', () => {
           tr.innerHTML = `
             <td>${index + 1}</td>
             <td>${jogador.nome}</td>
-            <td>${jogador.vitorias}</td>
-            <td>${jogador.derrotas}</td>
-            <td>${jogador.totalPartidas}</td>
-            <td>${(jogador.winRate * 100).toFixed(1)}%</td>
+            <td>${jogador.vitorias || 0}</td>
+            <td>${jogador.derrotas || 0}</td>
+            <td>${jogador.totalPartidas || 0}</td>
+            <td>${((jogador.winRate || 0) * 100).toFixed(1)}%</td>
           `;
           tabelaBody.appendChild(tr);
         });
@@ -270,22 +285,31 @@ document.addEventListener('DOMContentLoaded', () => {
         tabelaBody.innerHTML = '<tr><td colspan="6" class="text-center">Nenhum jogador encontrado</td></tr>';
       }
     } catch (error) {
+      console.error('Erro ao carregar o ranking:', error);
       tabelaBody.innerHTML = `<tr><td colspan="6" class="text-center">Erro ao carregar ranking: ${error}</td></tr>`;
     }
   }
   
-  // Carregar dados do perfil do usuário
+  // Função para carregar dados do perfil do usuário - versão atualizada
   async function carregarPerfilUsuario() {
     if (!usuarioLogado) return;
     
-    document.getElementById('perfil-nome').textContent = usuarioLogado.nome;
-    document.getElementById('perfil-login').textContent = usuarioLogado.login;
-    document.getElementById('perfil-vitorias').textContent = usuarioLogado.vitorias;
-    document.getElementById('perfil-derrotas').textContent = usuarioLogado.derrotas;
-    document.getElementById('perfil-winrate').textContent = `${(usuarioLogado.winRate * 100).toFixed(1)}%`;
-    
-    // Carregar histórico de partidas
     try {
+      // Buscar dados atualizados do usuário
+      const usuario = await API.obterUsuario(usuarioLogado.id);
+      
+      // Atualizar o usuário logado com dados mais recentes
+      usuarioLogado = usuario;
+      localStorage.setItem('usuario', JSON.stringify(usuarioLogado));
+      
+      // Atualizar a interface
+      document.getElementById('perfil-nome').textContent = usuarioLogado.nome;
+      document.getElementById('perfil-login').textContent = usuarioLogado.login;
+      document.getElementById('perfil-vitorias').textContent = usuarioLogado.vitorias;
+      document.getElementById('perfil-derrotas').textContent = usuarioLogado.derrotas;
+      document.getElementById('perfil-winrate').textContent = `${(usuarioLogado.winRate * 100).toFixed(1)}%`;
+      
+      // Carregar histórico de partidas
       const partidas = await API.listarPartidasUsuario(usuarioLogado.id);
       const historicoContainer = document.getElementById('historico-partidas');
       
@@ -335,9 +359,8 @@ document.addEventListener('DOMContentLoaded', () => {
         historicoContainer.innerHTML = '<p class="text-center">Nenhuma partida encontrada</p>';
       }
     } catch (error) {
-      console.error('Erro ao carregar histórico:', error);
-      document.getElementById('historico-partidas').innerHTML = 
-        `<p class="text-center">Erro ao carregar histórico: ${error}</p>`;
+      console.error('Erro ao carregar perfil:', error);
+      alert('Não foi possível carregar os dados do perfil: ' + error);
     }
   }
   

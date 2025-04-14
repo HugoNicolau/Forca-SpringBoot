@@ -54,6 +54,11 @@ public class UsuarioService {
                 .orElseThrow(() -> new IllegalArgumentException("Login ou senha inválidos"));
     }
 
+    public Usuario buscarUsuarioPorId(Long id) {
+        return usuarioRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Usuário não encontrado"));
+    }
+
     @Transactional
     public void apagarHistoricoPalavras(Long usuarioId) {
         Usuario usuario = usuarioRepository.findById(usuarioId)

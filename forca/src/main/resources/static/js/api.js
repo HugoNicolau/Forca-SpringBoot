@@ -40,12 +40,33 @@ const API = {
   
   // Ranking
   async obterRanking() {
-    return this.get(`${this.BASE_URL}/usuarios/ranking`);
+    console.log('Chamando obterRanking()');
+    const url = `${this.BASE_URL}/usuarios/ranking`;
+    console.log('URL do ranking:', url);
+    try {
+      const response = await fetch(url);
+      console.log('Resposta bruta:', response);
+      if (!response.ok) {
+        const erro = await this._handleError(response);
+        console.error('Erro na API:', erro);
+        throw erro;
+      }
+      const dados = await response.json();
+      console.log('Dados do ranking:', dados);
+      return dados;
+    } catch (error) {
+      console.error('Exceção ao obter ranking:', error);
+      throw error;
+    }
   },
   
   // Perfil
   async apagarHistoricoPalavras(usuarioId) {
     return this.delete(`${this.BASE_URL}/usuarios/${usuarioId}/historico-palavras`);
+  },
+  
+  async obterUsuario(usuarioId) {
+    return this.get(`${this.BASE_URL}/usuarios/${usuarioId}`);
   },
   
   // Equipes
