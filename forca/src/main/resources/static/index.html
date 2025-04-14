@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jogo da Forca</title>
+    <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+    <header>
+        <h1>Jogo da Forca</h1>
+        <nav>
+            <ul>
+                <li><a href="#" id="nav-jogar" class="active">Jogar</a></li>
+                <li><a href="#" id="nav-ranking">Ranking</a></li>
+                <li><a href="#" id="nav-equipes">Equipes</a></li>
+                <li><a href="#" id="nav-perfil">Meu Perfil</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <!-- Área de Login/Cadastro -->
+    <div id="login-area" class="container">
+        <div class="card">
+            <h2>Login</h2>
+            <form id="login-form">
+                <div class="form-group">
+                    <label for="login">Usuário:</label>
+                    <input type="text" id="login" name="login" required>
+                </div>
+                <div class="form-group">
+                    <label for="senha">Senha:</label>
+                    <input type="password" id="senha" name="senha" required>
+                </div>
+                <div class="form-actions">
+                    <button type="submit">Entrar</button>
+                    <button type="button" id="mostrar-cadastro">Cadastrar-se</button>
+                </div>
+            </form>
+        </div>
+
+        <div class="card hidden" id="cadastro-card">
+            <h2>Cadastro</h2>
+            <form id="cadastro-form">
+                <div class="form-group">
+                    <label for="cadastro-nome">Nome:</label>
+                    <input type="text" id="cadastro-nome" name="nome" required>
+                </div>
+                <div class="form-group">
+                    <label for="cadastro-login">Login:</label>
+                    <input type="text" id="cadastro-login" name="login" required>
+                </div>
+                <div class="form-group">
+                    <label for="cadastro-senha">Senha:</label>
+                    <input type="password" id="cadastro-senha" name="senha" required>
+                </div>
+                <div class="form-actions">
+                    <button type="submit">Cadastrar</button>
+                    <button type="button" id="voltar-login">Voltar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Área do Jogo -->
+    <div id="jogo-area" class="container hidden">
+        <div class="game-container">
+            <div class="game-header">
+                <div class="game-info">
+                    <p id="dica">Dica: <span></span></p>
+                    <p id="tentativas">Tentativas restantes: <span></span></p>
+                </div>
+                <div class="game-controls">
+                    <button id="nova-partida" class="btn-primary">Nova Partida</button>
+                    <button id="desistir" class="btn-danger">Desistir</button>
+                </div>
+            </div>
+
+            <div class="game-board">
+                <div class="forca-container">
+                    <img id="forca-img" src="/img/forca-estados/forca0.png" alt="Forca">
+                </div>
+                
+                <div class="palavra-container">
+                    <h2 id="palavra" class="palavra"></h2>
+                </div>
+            </div>
+
+            <div id="teclado" class="teclado"></div>
+
+            <div id="nova-partida-opcoes" class="hidden">
+                <h3>Escolha uma opção:</h3>
+                <div class="opcoes-container">
+                    <div class="opcao">
+                        <button id="palavra-aleatoria" class="btn-option">Palavra Aleatória</button>
+                    </div>
+                    <div class="opcao">
+                        <button id="palavra-personalizada" class="btn-option">Palavra Personalizada</button>
+                    </div>
+                </div>
+                <div id="opcoes-dificuldade" class="hidden">
+                    <h4>Escolha a dificuldade:</h4>
+                    <select id="dificuldade">
+                        <option value="facil">Fácil (8 tentativas)</option>
+                        <option value="normal" selected>Normal (6 tentativas)</option>
+                        <option value="dificil">Difícil (4 tentativas)</option>
+                    </select>
+                    <button id="iniciar-aleatorio" class="btn-primary">Iniciar</button>
+                </div>
+                <div id="form-personalizada" class="hidden">
+                    <div class="form-group">
+                        <label for="palavra-input">Palavra:</label>
+                        <input type="text" id="palavra-input" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="dica-input">Dica:</label>
+                        <input type="text" id="dica-input" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="dificuldade-custom">Dificuldade:</label>
+                        <select id="dificuldade-custom">
+                            <option value="facil">Fácil (8 tentativas)</option>
+                            <option value="normal" selected>Normal (6 tentativas)</option>
+                            <option value="dificil">Difícil (4 tentativas)</option>
+                        </select>
+                    </div>
+                    <button id="iniciar-personalizado" class="btn-primary">Iniciar</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="resultado-modal" class="modal hidden">
+            <div class="modal-content">
+                <h2 id="resultado-titulo"></h2>
+                <p id="resultado-mensagem"></p>
+                <p id="resultado-palavra"></p>
+                <button id="jogar-novamente" class="btn-primary">Jogar Novamente</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Área de Ranking -->
+    <div id="ranking-area" class="container hidden">
+        <h2>Ranking dos Jogadores</h2>
+        <table id="tabela-ranking">
+            <thead>
+                <tr>
+                    <th>Posição</th>
+                    <th>Nome</th>
+                    <th>Vitórias</th>
+                    <th>Derrotas</th>
+                    <th>Total Partidas</th>
+                    <th>Taxa de Vitória</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Preenchido dinamicamente pelo JavaScript -->
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Área de Equipes -->
+    <div id="equipes-area" class="container hidden">
+        <h2>Equipes</h2>
+        <div class="actions">
+            <button id="nova-equipe" class="btn-primary">Nova Equipe</button>
+        </div>
+
+        <div id="equipes-lista" class="equipes-grid">
+            <!-- Preenchido dinamicamente pelo JavaScript -->
+        </div>
+
+        <div id="equipe-modal" class="modal hidden">
+            <div class="modal-content">
+                <h2>Nova Equipe</h2>
+                <form id="equipe-form">
+                    <div class="form-group">
+                        <label for="equipe-nome">Nome da Equipe:</label>
+                        <input type="text" id="equipe-nome" required>
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" class="btn-primary">Salvar</button>
+                        <button type="button" id="cancelar-equipe" class="btn-secondary">Cancelar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div id="equipe-detalhe" class="hidden">
+            <h3 id="equipe-detalhe-nome"></h3>
+            <p>Pontuação Total: <span id="equipe-detalhe-pontuacao"></span></p>
+            <p>Jogadores: <span id="equipe-detalhe-qtd-jogadores"></span></p>
+
+            <h4>Jogadores da Equipe</h4>
+            <ul id="equipe-jogadores-lista">
+                <!-- Preenchido dinamicamente pelo JavaScript -->
+            </ul>
+
+            <button id="voltar-equipes" class="btn-secondary">Voltar</button>
+        </div>
+    </div>
+
+    <!-- Área de Perfil -->
+    <div id="perfil-area" class="container hidden">
+        <div class="profile-card">
+            <h2>Meu Perfil</h2>
+            <div id="perfil-info">
+                <p><strong>Nome:</strong> <span id="perfil-nome"></span></p>
+                <p><strong>Login:</strong> <span id="perfil-login"></span></p>
+                <p><strong>Vitórias:</strong> <span id="perfil-vitorias"></span></p>
+                <p><strong>Derrotas:</strong> <span id="perfil-derrotas"></span></p>
+                <p><strong>Taxa de Vitória:</strong> <span id="perfil-winrate"></span></p>
+            </div>
+            <div class="profile-actions">
+                <button id="apagar-historico" class="btn-danger">Apagar Histórico de Palavras</button>
+                <button id="logout" class="btn-secondary">Sair</button>
+            </div>
+        </div>
+
+        <div class="historico-container">
+            <h3>Histórico de Partidas</h3>
+            <div id="historico-partidas">
+                <!-- Preenchido dinamicamente pelo JavaScript -->
+            </div>
+        </div>
+    </div>
+
+    <script src="/js/api.js"></script>
+    <script src="/js/usuario.js"></script>
+    <script src="/js/equipe.js"></script>
+    <script src="/js/forca.js"></script>
+</body>
+</html>
