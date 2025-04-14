@@ -13,8 +13,8 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.dao.DataAccessException;
-import org.springframework.stereotype.Service;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Service;
 
 import com.jogodaforca.forca.model.Palavra;
 import com.jogodaforca.forca.model.Partida;
@@ -180,5 +180,26 @@ public class PalavraService extends AbstractService<Palavra, Long> {
     @Override
     protected JpaRepository<Palavra, Long> getRepository() {
         return palavraRepository;
+    }
+
+    // Adicionar à classe PalavraService ou criar uma classe utilitária StringUtils
+    /**
+     * CONCEITO: MÉTODO ESTÁTICO DE UTILIDADE
+     * - Método que não depende de estado de objeto
+     * - Pode ser chamado sem instância (diretamente pela classe)
+     * - Adequado para operações de transformação puras
+     * 
+     * @param input String para normalizar
+     * @return String sem acentos e em minúsculas
+     */
+    public static String normalizarTexto(String input) {
+        if (input == null) return null;
+        return input.toLowerCase()
+            .replaceAll("[áàãâä]", "a")
+            .replaceAll("[éèêë]", "e")
+            .replaceAll("[íìîï]", "i")
+            .replaceAll("[óòõôö]", "o")
+            .replaceAll("[úùûü]", "u")
+            .replaceAll("[ç]", "c");
     }
 }

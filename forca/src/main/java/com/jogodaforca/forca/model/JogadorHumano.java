@@ -3,6 +3,8 @@ package com.jogodaforca.forca.model;
 import com.jogodaforca.forca.dto.JogadorDTO;
 
 import jakarta.persistence.Entity;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 
 /**
  * CONCEITO: ESPECIALIZAÇÃO DE CLASSE ABSTRATA
@@ -12,6 +14,24 @@ import jakarta.persistence.Entity;
 @Entity
 public class JogadorHumano extends Jogador {
     
+    /**
+     * CONCEITO: ASSOCIAÇÃO BIDIRECIONAL (MANY-TO-ONE)
+     * - Muitos jogadores podem pertencer a uma equipe
+     * - O lado "muitos" da associação bidirecional com Equipe
+     */
+    @ManyToOne
+    @JoinColumn(name = "equipe_id")
+    private Equipe equipe;
+
+    // Getters e Setters para a associação
+    public Equipe getEquipe() {
+        return equipe;
+    }
+
+    public void setEquipe(Equipe equipe) {
+        this.equipe = equipe;
+    }
+
     /**
      * CONCEITO: IMPLEMENTAÇÃO DE MÉTODO ABSTRATO
      * - Fornece uma implementação concreta para o método abstrato definido na classe pai

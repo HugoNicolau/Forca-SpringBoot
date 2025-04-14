@@ -49,6 +49,16 @@ public class Partida extends BaseEntity {
     private StatusPartida status;
 
     /**
+     * CONCEITO: ATRIBUTO ESTÁTICO (CONSTANTE)
+     * - Compartilhado por todas as instâncias da classe
+     * - Usado para armazenar valores constantes
+     * - Economiza memória e garante consistência
+     */
+    private static final int TENTATIVAS_PADRAO = 6;
+    private static final int TENTATIVAS_FACIL = 8;
+    private static final int TENTATIVAS_DIFICIL = 4;
+
+    /**
      * CONCEITO: SOBRECARGA DE CONSTRUTORES
      * - Múltiplos construtores com diferentes parâmetros
      * - Permite inicializar o objeto de diferentes maneiras
@@ -70,9 +80,12 @@ public class Partida extends BaseEntity {
         this(usuario, palavra); // Chama o construtor com dois parâmetros
         // Ajuste o número de tentativas com base na dificuldade
         if ("facil".equalsIgnoreCase(dificuldade)) {
-            this.estado.setTentativasRestantes(8);
+            this.estado.setTentativasRestantes(TENTATIVAS_FACIL);
         } else if ("dificil".equalsIgnoreCase(dificuldade)) {
-            this.estado.setTentativasRestantes(4);
+            this.estado.setTentativasRestantes(TENTATIVAS_DIFICIL);
+        } else {
+            // Usa o valor padrão para dificuldade normal ou qualquer outro valor
+            this.estado.setTentativasRestantes(TENTATIVAS_PADRAO);
         }
     }
 

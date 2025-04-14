@@ -76,6 +76,10 @@ public class Resultado<T> {
     /**
      * Cria um resultado de falha com mensagem.
      * 
+     * CONCEITO: MÉTODOS DE FÁBRICA ESTÁTICOS
+     * - Método estático para criar instâncias específicas da classe
+     * - Similar ao padrão Factory Method
+     * 
      * @param <T> Tipo de dados do resultado
      * @param mensagem A mensagem de erro
      * @return Um resultado de falha contendo a mensagem de erro
@@ -93,7 +97,7 @@ public class Resultado<T> {
      * @return Um resultado de falha contendo a mensagem de erro
      */
     public static <T> Resultado<T> erro(String mensagem) {
-        return falha(mensagem);
+        return new Resultado<>(false, mensagem, null);
     }
     
     /**

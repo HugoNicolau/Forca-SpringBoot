@@ -1,5 +1,7 @@
 package com.jogodaforca.forca.service;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,6 +30,41 @@ public class JogadorService {
     private PalavraService palavraService;
     
     /**
+     * CONCEITO: AGREGAÇÃO
+     * - Relação "tem um" onde a parte pode existir independentemente do todo
+     * - JogadorService agrega (contém) jogadores, mas eles podem existir sem o serviço
+     */
+    private List<Jogador> jogadoresAtivos = new ArrayList<>();
+
+    /**
+     * Registra um jogador como ativo no sistema.
+     * 
+     * CONCEITO: MANIPULAÇÃO DE AGREGAÇÃO
+     * - O jogador existe independentemente do serviço
+     * - Adição e remoção não afetam a existência do jogador
+     * 
+     * @param jogador O jogador a ser adicionado à lista de ativos
+     */
+    public void registrarJogador(Jogador jogador) {
+        jogadoresAtivos.add(jogador);
+        System.out.println("Jogador " + jogador.getNome() + " registrado com sucesso");
+    }
+
+    /**
+     * Remove um jogador da lista de ativos.
+     * 
+     * @param jogador O jogador a ser removido
+     * @return true se o jogador foi removido, false se não estava na lista
+     */
+    public boolean removerJogador(Jogador jogador) {
+        boolean removido = jogadoresAtivos.remove(jogador);
+        if (removido) {
+            System.out.println("Jogador " + jogador.getNome() + " removido da lista de ativos");
+        }
+        return removido;
+    }
+    
+    /**
      * Escolhe uma palavra para um jogador Bot.
      * 
      * CONCEITO: MÉTODO ESPECÍFICO
@@ -38,11 +75,10 @@ public class JogadorService {
      * @return A palavra escolhida, ou null se não houver palavras disponíveis
      */
     public Palavra escolherPalavraPara(JogadorBot bot) {
-        // Lógica de negócio específica para bots
-        Random random = new Random();
+        // Lógica para escolher palavra aleatória
         var palavras = palavraRepository.findAll();
         if (!palavras.isEmpty()) {
-            return palavras.get(random.nextInt(palavras.size()));
+            return palavras.get(new Random().nextInt(palavras.size()));
         }
         return null;
     }
