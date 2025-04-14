@@ -1,6 +1,7 @@
 package com.jogodaforca.forca.service;
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
@@ -11,7 +12,9 @@ import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
+import org.springframework.data.jpa.repository.JpaRepository;
 
 import com.jogodaforca.forca.model.Palavra;
 import com.jogodaforca.forca.model.Partida;
@@ -21,8 +24,19 @@ import com.jogodaforca.forca.repository.PartidaRepository;
 
 import jakarta.annotation.PostConstruct;
 
+/**
+ * Serviço responsável pelo gerenciamento de palavras do jogo.
+ * 
+ * CONCEITO: ABSTRAÇÃO
+ * - Encapsula a lógica de negócio relacionada às palavras do jogo
+ * - Separa a implementação do acesso e manipulação de palavras da camada de controle
+ * 
+ * CONCEITO: HERANÇA
+ * - Estende AbstractService para herdar operações CRUD básicas
+ * - Exemplo de especialização, onde a subclasse adiciona comportamentos específicos
+ */
 @Service
-public class PalavraService {
+public class PalavraService extends AbstractService<Palavra, Long> {
 
     @Autowired
     private PalavraRepository palavraRepository;
@@ -30,14 +44,36 @@ public class PalavraService {
     @Autowired
     private PartidaRepository partidaRepository;
     
+    /**
+     * CONCEITO: ENCAPSULAMENTO
+     * - Atributos privados acessíveis apenas dentro desta classe
+     */
     private final Random random = new Random();
-    private List<Palavra> palavrasEmCache = new ArrayList<>();
+    private final List<Palavra> palavrasEmCache = new ArrayList<>();
     
+    /**
+     * Inicializa o serviço carregando palavras do arquivo.
+     * 
+     * CONCEITO: CICLO DE VIDA
+     * - @PostConstruct é executado após a injeção de dependências
+     * - Demonstra o ciclo de vida gerenciado pelo framework Spring
+     */
     @PostConstruct
     public void init() {
         carregarPalavrasDoArquivo();
     }
     
+    /**
+     * Carrega palavras de um arquivo de texto e as salva no banco de dados.
+     * 
+     * CONCEITO: ENCAPSULAMENTO
+     * - Método privado usado apenas internamente pela classe
+     * - Esconde a implementação de como as palavras são carregadas
+     * 
+     * CONCEITO: TRATAMENTO DE EXCEÇÕES ESPECÍFICAS
+     * - Captura e trata diferentes tipos de exceções de forma adequada
+     * - Demonstra melhor prática de programação defensiva
+     */
     private void carregarPalavrasDoArquivo() {
         try {
             ClassPathResource resource = new ClassPathResource("palavras.txt");
@@ -62,11 +98,34 @@ public class PalavraService {
                 palavraRepository.saveAll(palavrasEmCache);
                 System.out.println("Carregadas " + palavrasEmCache.size() + " palavras do arquivo.");
             }
+        } catch (IOException e) {
+            // Exceção específica para erros de leitura de arquivo
+            System.err.println("Erro ao ler o arquivo de palavras: " + e.getMessage());
+        } catch (DataAccessException e) {
+            // Exceção específica do Spring para problemas de acesso ao banco de dados
+            System.err.println("Erro ao salvar palavras no banco de dados: " + e.getMessage());
+        } catch (IllegalArgumentException e) {
+            // Exceção para argumentos inválidos
+            System.err.println("Argumento inválido ao processar palavras: " + e.getMessage());
         } catch (Exception e) {
-            System.err.println("Erro ao carregar palavras do arquivo: " + e.getMessage());
+            // Mantém um catch genérico no final para qualquer outra exceção não prevista
+            // Mas agora é menos abrangente, pois as exceções mais comuns já foram tratadas acima
+            System.err.println("Erro inesperado ao carregar palavras: " + e.getMessage());
+            // Em ambiente de produção, seria ideal logar o stack trace completo
+            // e.printStackTrace();
         }
     }
     
+    /**
+     * Obtém uma palavra aleatória que o usuário ainda não jogou.
+     * 
+     * CONCEITO: RESPONSABILIDADE ÚNICA
+     * - Método tem responsabilidade bem definida: obter uma palavra não jogada
+     * - Implementa lógica de negócio específica para este requisito
+     * 
+     * @param usuario O usuário para o qual será selecionada uma palavra
+     * @return Uma palavra aleatória ainda não jogada pelo usuário
+     */
     public Palavra obterPalavraAleatoria(Usuario usuario) {
         // Obter palavras já jogadas pelo usuário
         List<Partida> partidasDoUsuario = partidaRepository.findByUsuarioOrderByDataInicioDesc(usuario);
@@ -92,8 +151,34 @@ public class PalavraService {
         return palavrasDisponiveis.get(random.nextInt(palavrasDisponiveis.size()));
     }
     
+    /**
+     * Cria uma nova palavra customizada e a salva no banco de dados.
+     * 
+     * CONCEITO: SOBRECARGA DE MÉTODOS (COMO PARTE DO SISTEMA)
+     * - Trabalha em conjunto com o método obterPalavraAleatoria()
+     * - Oferece diferentes formas de obter uma palavra para o jogo
+     * 
+     * @param palavraSecreta A palavra a ser adivinhada
+     * @param dica Uma dica para ajudar a adivinhar a palavra
+     * @return A palavra criada e salva no banco de dados
+     */
     public Palavra criarPalavraCustomizada(String palavraSecreta, String dica) {
+        // Validação
+        if (palavraSecreta == null || palavraSecreta.trim().isEmpty()) {
+            throw new IllegalArgumentException("A palavra não pode ser vazia");
+        }
+        
         Palavra palavra = new Palavra(palavraSecreta, dica);
         return palavraRepository.save(palavra);
+    }
+    
+    /**
+     * CONCEITO: SOBRESCRITA (OVERRIDE)
+     * - Implementa método abstrato definido na superclasse
+     * - Fornece o repositório específico para operações com Palavra
+     */
+    @Override
+    protected JpaRepository<Palavra, Long> getRepository() {
+        return palavraRepository;
     }
 }

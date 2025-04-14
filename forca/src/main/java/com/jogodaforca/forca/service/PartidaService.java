@@ -1,19 +1,17 @@
 package com.jogodaforca.forca.service;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.jogodaforca.forca.model.LetraTentada;
 import com.jogodaforca.forca.model.Palavra;
 import com.jogodaforca.forca.model.Partida;
-import com.jogodaforca.forca.model.StatusPartida;
 import com.jogodaforca.forca.model.Usuario;
 import com.jogodaforca.forca.repository.PartidaRepository;
 import com.jogodaforca.forca.repository.UsuarioRepository;
+import com.jogodaforca.forca.util.Resultado;
 
 @Service
 public class PartidaService {
@@ -27,64 +25,93 @@ public class PartidaService {
     @Autowired
     private PalavraService palavraService;
     
+    // Método principal para iniciar partida
     @Transactional
-    public Partida iniciarPartida(Long usuarioId, String palavraCustomizada, String dica) {
-        Usuario usuario = usuarioRepository.findById(usuarioId)
-                .orElseThrow(() -> new IllegalArgumentException("Usuário não encontrado"));
-        
-        Palavra palavra;
-        if (palavraCustomizada != null && !palavraCustomizada.trim().isEmpty()) {
-            // Usar palavra customizada
-            palavra = palavraService.criarPalavraCustomizada(palavraCustomizada, dica);
-        } else {
+    public Resultado<Partida> iniciarPartida(Long usuarioId, String palavraCustomizada, String dica) {
+        try {
+            Usuario usuario = usuarioRepository.findById(usuarioId)
+                    .orElseThrow(() -> new IllegalArgumentException("Usuário não encontrado"));
+            
+            Palavra palavra;
+            if (palavraCustomizada != null && !palavraCustomizada.trim().isEmpty()) {
+                // Usar palavra customizada
+                palavra = palavraService.criarPalavraCustomizada(palavraCustomizada, dica);
+            } else {
+                // Buscar palavra aleatória que o usuário ainda não jogou
+                palavra = palavraService.obterPalavraAleatoria(usuario);
+            }
+            
+            Partida partida = new Partida(usuario, palavra);
+            return Resultado.sucesso(partidaRepository.save(partida));
+        } catch (Exception e) {
+            return Resultado.erro(e.getMessage());
+        }
+    }
+    
+    // Sobrecarga para iniciar partida com dificuldade
+    @Transactional
+    public Resultado<Partida> iniciarPartida(Long usuarioId, String dificuldade) {
+        try {
+            Usuario usuario = usuarioRepository.findById(usuarioId)
+                    .orElseThrow(() -> new IllegalArgumentException("Usuário não encontrado"));
+            
             // Buscar palavra aleatória que o usuário ainda não jogou
-            palavra = palavraService.obterPalavraAleatoria(usuario);
+            Palavra palavra = palavraService.obterPalavraAleatoria(usuario);
+            
+            Partida partida = new Partida(usuario, palavra, dificuldade);
+            return Resultado.sucesso(partidaRepository.save(partida));
+        } catch (Exception e) {
+            return Resultado.erro(e.getMessage());
         }
-        
-        Partida partida = new Partida();
-        partida.setUsuario(usuario);
-        partida.setPalavra(palavra);
-        partida.setDataInicio(LocalDateTime.now());
-        partida.setStatus(StatusPartida.EM_ANDAMENTO);
-        partida.setTentativasRestantes(6); // Padrão: 6 tentativas
-        
-        return partidaRepository.save(partida);
+    }
+    
+    // Sobrecarga para iniciar partida com palavra específica e dificuldade
+    @Transactional
+    public Resultado<Partida> iniciarPartida(Long usuarioId, String palavraCustomizada, String dica, String dificuldade) {
+        try {
+            Usuario usuario = usuarioRepository.findById(usuarioId)
+                    .orElseThrow(() -> new IllegalArgumentException("Usuário não encontrado"));
+            
+            Palavra palavra = palavraService.criarPalavraCustomizada(palavraCustomizada, dica);
+            
+            Partida partida = new Partida(usuario, palavra, dificuldade);
+            return Resultado.sucesso(partidaRepository.save(partida));
+        } catch (Exception e) {
+            return Resultado.erro(e.getMessage());
+        }
     }
     
     @Transactional
-    public Partida tentarLetra(Long partidaId, char letra) {
-        letra = Character.toLowerCase(letra);
-        
-        Partida partida = partidaRepository.findById(partidaId)
-                .orElseThrow(() -> new IllegalArgumentException("Partida não encontrada"));
-        
-        // Verificar se a partida ainda está em andamento
-        if (partida.getStatus() != StatusPartida.EM_ANDAMENTO) {
-            throw new IllegalArgumentException("Esta partida já foi finalizada");
+    public Resultado<Partida> tentarLetra(Long partidaId, char letra) {
+        try {
+            letra = Character.toLowerCase(letra);
+            
+            Partida partida = partidaRepository.findById(partidaId)
+                    .orElseThrow(() -> new IllegalArgumentException("Partida não encontrada"));
+            
+            boolean acerto = partida.tentarLetra(letra);
+            
+            partidaRepository.save(partida);
+            
+            // Incluir informação de acerto/erro na mensagem de retorno
+            String mensagem = acerto ? 
+                    "Letra correta! Você acertou." : 
+                    "Letra incorreta! Tente novamente.";
+            
+            return Resultado.sucesso(mensagem, partida);
+        } catch (Exception e) {
+            return Resultado.erro(e.getMessage());
         }
-        
-        // Verificar se a letra já foi tentada
-        if (partida.contemLetraTentada(letra)) {
-            throw new IllegalArgumentException("Esta letra já foi tentada");
-        }
-        
-        // Verificar se a letra está na palavra secreta
-        boolean acerto = partida.getPalavra().getPalavraSecreta().indexOf(letra) >= 0;
-        
-        // Criar nova tentativa
-        LetraTentada letraTentada = new LetraTentada();
-        letraTentada.setLetra(letra);
-        letraTentada.setAcerto(acerto);
-        
-        // Adicionar à partida e atualizar estado
-        partida.adicionarLetraTentada(letraTentada);
-        
-        return partidaRepository.save(partida);
     }
     
-    public Partida buscarPartida(Long partidaId) {
-        return partidaRepository.findById(partidaId)
-                .orElseThrow(() -> new IllegalArgumentException("Partida não encontrada"));
+    public Resultado<Partida> buscarPartida(Long partidaId) {
+        try {
+            Partida partida = partidaRepository.findById(partidaId)
+                    .orElseThrow(() -> new IllegalArgumentException("Partida não encontrada"));
+            return Resultado.sucesso(partida);
+        } catch (Exception e) {
+            return Resultado.erro(e.getMessage());
+        }
     }
     
     public List<Partida> listarPartidasPorUsuario(Long usuarioId) {
@@ -95,18 +122,17 @@ public class PartidaService {
     }
     
     @Transactional
-    public Partida desistirPartida(Long partidaId) {
-        Partida partida = partidaRepository.findById(partidaId)
-                .orElseThrow(() -> new IllegalArgumentException("Partida não encontrada"));
-        
-        if (partida.getStatus() != StatusPartida.EM_ANDAMENTO) {
-            throw new IllegalArgumentException("Esta partida já foi finalizada");
+    public Resultado<Partida> desistirPartida(Long partidaId) {
+        try {
+            Partida partida = partidaRepository.findById(partidaId)
+                    .orElseThrow(() -> new IllegalArgumentException("Partida não encontrada"));
+            
+            partida.desistir();
+            partidaRepository.save(partida);
+            
+            return Resultado.sucesso(partida);
+        } catch (Exception e) {
+            return Resultado.erro(e.getMessage());
         }
-        
-        partida.setStatus(StatusPartida.DESISTIU);
-        partida.setDataFim(LocalDateTime.now());
-        partida.getUsuario().setDerrotas(partida.getUsuario().getDerrotas() + 1);
-        
-        return partidaRepository.save(partida);
     }
 }
