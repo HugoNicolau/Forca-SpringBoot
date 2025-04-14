@@ -238,7 +238,7 @@ document.addEventListener('DOMContentLoaded', () => {
     jogo.tentativas.textContent = partidaAtual.tentativasRestantes;
     
     // Atualizar imagem da forca (0-6 tentativas)
-    const indiceImagem = 6 - partidaAtual.tentativasRestantes;
+    const indiceImagem = (6 - partidaAtual.tentativasRestantes) > 0 ? (6 - partidaAtual.tentativasRestantes) : 0;
     jogo.forcaImg.src = `/img/forca-estados/forca${indiceImagem}.png`;
     
     jogo.btnDesistir.disabled = false;
