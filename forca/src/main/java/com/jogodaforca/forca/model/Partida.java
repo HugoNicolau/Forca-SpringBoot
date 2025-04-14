@@ -4,6 +4,8 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -25,6 +27,7 @@ public class Partida {
     
     @ManyToOne
     @JoinColumn(name = "usuario_id")
+    @JsonIgnoreProperties("partidas")
     private Usuario usuario;
     
     @OneToOne(cascade = CascadeType.ALL)

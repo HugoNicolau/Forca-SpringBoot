@@ -3,6 +3,8 @@ package com.jogodaforca.forca.model;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -23,6 +25,7 @@ public class Usuario {
     private int derrotas;
     
     @OneToMany(mappedBy = "usuario")
+    @JsonIgnore
     private List<Partida> partidas = new ArrayList<>();
     
     // Getters e Setters

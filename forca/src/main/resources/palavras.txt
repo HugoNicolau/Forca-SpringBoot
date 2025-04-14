@@ -1,0 +1,25 @@
+programacao,Atividade de escrever código
+java,Linguagem de programação orientada a objetos
+spring,Framework para desenvolvimento em Java
+forca,Jogo de adivinhar palavras
+computador,Máquina que processa dados
+internet,Rede global de computadores
+algoritmo,Conjunto de passos para resolver um problema
+python,Linguagem de programação interpretada
+desenvolvimento,Processo de criar software
+interface,Meio de interação entre sistemas
+banco,Onde se guarda dados estruturados
+aplicativo,Software para dispositivos móveis
+framework,Conjunto de bibliotecas e padrões
+api,Interface de programação de aplicações
+objeto,Instância de uma classe
+herança,Conceito de POO para reutilização
+polimorfismo,Conceito de POO para flexibilidade
+encapsulamento,Proteção de dados em POO
+typescript,JavaScript com tipos
+react,Biblioteca para interfaces de usuário
+angular,Framework para desenvolvimento web
+vue,Framework JavaScript progressivo
+frontend,Parte visual de uma aplicação
+backend,Parte do servidor de uma aplicação
+fullstack,Desenvolvedor que trabalha em ambas partes

@@ -1,9 +1,14 @@
 package com.jogodaforca.forca.service;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import com.jogodaforca.forca.model.Partida;
 import com.jogodaforca.forca.model.Usuario;
+import com.jogodaforca.forca.repository.PartidaRepository;
 import com.jogodaforca.forca.repository.UsuarioRepository;
 
 @Service
@@ -11,6 +16,9 @@ public class UsuarioService {
 
     @Autowired
     private UsuarioRepository usuarioRepository;
+    
+    @Autowired
+    private PartidaRepository partidaRepository;
     
     public Usuario cadastrarUsuario(Usuario usuario) {
         // Verificar se login já existe
@@ -44,5 +52,17 @@ public class UsuarioService {
         return usuarioRepository.findByLogin(login)
                 .filter(usuario -> usuario.getSenha().equals(senha))
                 .orElseThrow(() -> new IllegalArgumentException("Login ou senha inválidos"));
+    }
+
+    @Transactional
+    public void apagarHistoricoPalavras(Long usuarioId) {
+        Usuario usuario = usuarioRepository.findById(usuarioId)
+                .orElseThrow(() -> new IllegalArgumentException("Usuário não encontrado"));
+        
+        // Encontrar todas as partidas do usuário
+        List<Partida> partidas = partidaRepository.findByUsuarioOrderByDataInicioDesc(usuario);
+        
+        // Apagar todas as partidas do usuário
+        partidaRepository.deleteAll(partidas);
     }
 }
