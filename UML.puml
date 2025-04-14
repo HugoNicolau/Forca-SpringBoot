@@ -1,0 +1,621 @@
+@startuml "Jogo da Forca - Diagrama Completo"
+
+' ----- Packages -----
+package "model" {
+  ' ----- Entidades principais -----
+  abstract class BaseEntity {
+    -Long id
+    -LocalDateTime criadoEm
+    -LocalDateTime atualizadoEm
+    #void onCreate()
+    #void onUpdate()
+    +{abstract} Object toDTO()
+    +Long getId()
+    +void setId(Long id)
+    +LocalDateTime getCriadoEm()
+    +LocalDateTime getAtualizadoEm()
+  }
+  
+  abstract class Jogador {
+    -String nome
+    #int nivel
+    ~int experiencia
+    +String tipoJogador
+    -ConfiguracaoJogador configuracao
+    -void metodoPrivado()
+    #void metodoProtegido()
+    ~void metodoPackage()
+    +void metodoPublico()
+    +{abstract} Palavra escolherPalavra()
+    +int calcularPontuacao(int tentativasRestantes, int tamanhoPalavra)
+    +String getNome()
+    +void setNome(String nome)
+    +String getTipoJogador()
+    +void setTipoJogador(String tipo)
+    +ConfiguracaoJogador getConfiguracao()
+    +void setConfiguracao(ConfiguracaoJogador config)
+  }
+  
+  class JogadorHumano {
+    -Equipe equipe
+    +Palavra escolherPalavra()
+    +int calcularPontuacao(int tentativasRestantes, int tamanhoPalavra)
+    +Object toDTO()
+    +Equipe getEquipe()
+    +void setEquipe(Equipe equipe)
+  }
+  
+  class JogadorBot {
+    +Palavra escolherPalavra()
+    +Object toDTO()
+  }
+  
+  class Usuario {
+    -String nome
+    -String login
+    -String senha
+    -int vitorias
+    -int derrotas
+    +double calcularWinRate()
+    +int getTotalPartidas()
+    +int getVitorias()
+    +int getDerrotas()
+    +Object toDTO()
+    +String getNome()
+    +void setNome(String nome)
+    +String getLogin()
+    +void setLogin(String login)
+    +String getSenha()
+    +void setSenha(String senha)
+    +void incrementarVitorias()
+    +void incrementarDerrotas()
+    +List<Partida> getPartidas()
+  }
+  
+  class Palavra {
+    -String palavraSecreta
+    -String dica
+    +Palavra()
+    +Palavra(String palavraSecreta, String dica)
+    +Palavra(String palavraSecreta, String dica, Long id)
+    +boolean contemLetra(char letra)
+    +boolean contemLetra(char letra, boolean ignorarAcentos)
+    +boolean contemLetra(String trecho)
+    +String formatarPalavra()
+    +String formatarPalavra(char[] letrasDescobertas)
+    +Object toDTO()
+    +String getPalavraSecreta()
+    +void setPalavraSecreta(String palavraSecreta)
+    +String getDica()
+    +void setDica(String dica)
+  }
+  
+  class Partida {
+    -static final int TENTATIVAS_PADRAO
+    -static final int TENTATIVAS_FACIL
+    -static final int TENTATIVAS_DIFICIL
+    -LocalDateTime dataInicio
+    -LocalDateTime dataFim
+    -StatusPartida status
+    +Partida()
+    +Partida(Usuario usuario, Palavra palavra)
+    +Partida(Usuario usuario, Palavra palavra, String dificuldade)
+    +String getPalavraAtual()
+    +boolean contemLetraTentada(char letra)
+    +boolean tentarLetra(char letra)
+    +void desistir()
+    -void finalizarComoVitoria()
+    -void finalizarComoDerrota()
+    +Object toDTO()
+    +Usuario getUsuario()
+    +void setUsuario(Usuario usuario)
+    +Palavra getPalavra()
+    +void setPalavra(Palavra palavra)
+    +EstadoDaForca getEstado()
+    +void setEstado(EstadoDaForca estado)
+    +List<LetraTentada> getLetrasTentadas()
+    +StatusPartida getStatus()
+    +void setStatus(StatusPartida status)
+    +LocalDateTime getDataInicio()
+    +LocalDateTime getDataFim()
+  }
+  
+  class LetraTentada {
+    -char letra
+    -boolean acerto
+    -LocalDateTime dataHora
+    -Partida partida
+    +LetraTentada()
+    +LetraTentada(char letra, boolean acerto)
+    +Object toDTO()
+    +char getLetra()
+    +void setLetra(char letra)
+    +boolean isAcerto()
+    +void setAcerto(boolean acerto)
+    +LocalDateTime getDataHora()
+    +void setDataHora(LocalDateTime dataHora)
+    +Partida getPartida()
+    +void setPartida(Partida partida)
+  }
+  
+  class EstadoDaForca {
+    -int tentativasRestantes
+    -String letrasCorretas
+    -String letrasErradas
+    +EstadoDaForca()
+    +Set<Character> getLetrasCorretasSet()
+    +Set<Character> getLetrasErradasSet()
+    +int getTentativasRestantes()
+    +void setTentativasRestantes(int tentativas)
+    +String getLetrasCorretas()
+    +void setLetrasCorretas(String letras)
+    +String getLetrasErradas()
+    +void setLetrasErradas(String letras)
+    +void adicionarLetraCorreta(char letra)
+    +void adicionarLetraErrada(char letra)
+    +boolean todasLetrasDescobertas(String palavraSecreta)
+  }
+  
+  class Equipe {
+    -String nome
+    -int pontuacaoTotal
+    +void adicionarJogador(JogadorHumano jogador)
+    +void removerJogador(JogadorHumano jogador)
+    +void atualizarPontuacaoTotal()
+    +Object toDTO()
+    +String getNome()
+    +void setNome(String nome)
+    +int getPontuacaoTotal()
+    +List<JogadorHumano> getJogadores()
+  }
+  
+  class ConfiguracaoJogador {
+    -String tema
+    -String dificuldade
+    -boolean notificacoesAtivadas
+    +ConfiguracaoJogador()
+    +ConfiguracaoJogador(String tema, String dificuldade, boolean notificacoes)
+    +String getTema()
+    +void setTema(String tema)
+    +String getDificuldade()
+    +void setDificuldade(String dificuldade)
+    +boolean isNotificacoesAtivadas()
+    +void setNotificacoesAtivadas(boolean notificacoes)
+    +String toString()
+  }
+  
+  enum StatusPartida {
+    EM_ANDAMENTO
+    VENCEU
+    PERDEU
+    DESISTIU
+  }
+}
+
+package "dto" {
+  abstract class BaseDTO {
+    -Long id
+    -LocalDateTime criadoEm
+    -LocalDateTime atualizadoEm
+    +Long getId()
+    +void setId(Long id)
+    +LocalDateTime getCriadoEm()
+    +void setCriadoEm(LocalDateTime criadoEm)
+    +LocalDateTime getAtualizadoEm()
+    +void setAtualizadoEm(LocalDateTime atualizadoEm)
+  }
+  
+  class EquipeDTO {
+    -String nome
+    -int pontuacaoTotal
+    -int quantidadeJogadores
+    +String getNome()
+    +void setNome(String nome)
+    +int getPontuacaoTotal()
+    +void setPontuacaoTotal(int pontuacaoTotal)
+    +int getQuantidadeJogadores()
+    +void setQuantidadeJogadores(int quantidade)
+  }
+  
+  class JogadorDTO {
+    -Long id
+    -String nome
+    -String tipo
+    +Long getId()
+    +void setId(Long id)
+    +String getNome()
+    +void setNome(String nome)
+    +String getTipo()
+    +void setTipo(String tipo)
+  }
+  
+  class PartidaDTO {
+    -Long usuarioId
+    -String nomeUsuario
+    -String palavraAtual
+    -String dica
+    -int tentativasRestantes
+    -Set<Character> letrasCorretas
+    -Set<Character> letrasErradas
+    -StatusPartida status
+    -LocalDateTime dataInicio
+    -LocalDateTime dataFim
+    +static PartidaDTO fromPartida(Partida partida)
+    +Long getUsuarioId()
+    +void setUsuarioId(Long id)
+    +String getNomeUsuario()
+    +void setNomeUsuario(String nome)
+    +String getPalavraAtual()
+    +void setPalavraAtual(String palavra)
+    +String getDica()
+    +void setDica(String dica)
+    +int getTentativasRestantes()
+    +void setTentativasRestantes(int tentativas)
+    +Set<Character> getLetrasCorretas()
+    +void setLetrasCorretas(Set<Character> letras)
+    +Set<Character> getLetrasErradas()
+    +void setLetrasErradas(Set<Character> letras)
+    +StatusPartida getStatus()
+    +void setStatus(StatusPartida status)
+    +LocalDateTime getDataInicio()
+    +void setDataInicio(LocalDateTime data)
+    +LocalDateTime getDataFim()
+    +void setDataFim(LocalDateTime data)
+  }
+  
+  class PartidaDetalhadaDTO extends PartidaDTO {
+    -List<TentativaDTO> historicoTentativas
+    -String palavraSecreta
+    +static PartidaDetalhadaDTO fromPartida(Partida partida)
+    +List<TentativaDTO> getHistoricoTentativas()
+    +void setHistoricoTentativas(List<TentativaDTO> tentativas)
+    +String getPalavraSecreta()
+    +void setPalavraSecreta(String palavra)
+  }
+  
+  class PartidaResumidaDTO extends PartidaDTO {
+    +static PartidaResumidaDTO fromPartida(Partida partida)
+  }
+  
+  class PalavraDTO {
+    -String palavraSecreta
+    -String dica
+    +String getPalavraSecreta()
+    +void setPalavraSecreta(String palavraSecreta)
+    +String getDica()
+    +void setDica(String dica)
+  }
+  
+  class TentativaDTO {
+    -char letra
+    -boolean acerto
+    -Long partidaId
+    -String dataHora
+    +static TentativaDTO fromLetraTentada(LetraTentada letraTentada)
+    +char getLetra()
+    +void setLetra(char letra)
+    +boolean isAcerto()
+    +void setAcerto(boolean acerto)
+    +Long getPartidaId()
+    +void setPartidaId(Long id)
+    +String getDataHora()
+    +void setDataHora(String dataHora)
+  }
+  
+  class UsuarioDTO {
+    -String nome
+    -String login
+    -int vitorias
+    -int derrotas
+    -double winRate
+    -int totalPartidas
+    +String getNome()
+    +void setNome(String nome)
+    +String getLogin()
+    +void setLogin(String login)
+    +int getVitorias()
+    +void setVitorias(int vitorias)
+    +int getDerrotas()
+    +void setDerrotas(int derrotas)
+    +double getWinRate()
+    +void setWinRate(double winRate)
+    +int getTotalPartidas()
+    +void setTotalPartidas(int total)
+  }
+  
+  class RankingDTO {
+    -Long id
+    -String nome
+    -int vitorias
+    -int derrotas
+    -int totalPartidas
+    -double winRate
+    +static RankingDTO fromUsuario(Usuario usuario)
+    +Long getId()
+    +void setId(Long id)
+    +String getNome()
+    +void setNome(String nome)
+    +int getVitorias()
+    +void setVitorias(int vitorias)
+    +int getDerrotas()
+    +void setDerrotas(int derrotas)
+    +int getTotalPartidas()
+    +void setTotalPartidas(int total)
+    +double getWinRate()
+    +void setWinRate(double taxa)
+  }
+  
+  class IniciarPartidaDTO {
+    -Long usuarioId
+    -String palavraCustomizada
+    -String dica
+    -String dificuldade
+    +Long getUsuarioId()
+    +void setUsuarioId(Long id)
+    +String getPalavraCustomizada()
+    +void setPalavraCustomizada(String palavra)
+    +String getDica()
+    +void setDica(String dica)
+    +String getDificuldade()
+    +void setDificuldade(String dificuldade)
+  }
+}
+
+package "service" {
+  class PartidaService {
+    -PartidaRepository partidaRepository
+    -UsuarioRepository usuarioRepository
+    -PalavraService palavraService
+    +Resultado<Partida> iniciarPartida(Long usuarioId, String palavraCustomizada, String dica)
+    +Resultado<Partida> iniciarPartida(Long usuarioId, String dificuldade)
+    +Resultado<Partida> iniciarPartida(Long usuarioId, String palavraCustomizada, String dica, String dificuldade)
+    +Resultado<Partida> tentarLetra(Long partidaId, char letra)
+    +Resultado<Partida> buscarPartida(Long partidaId)
+    +List<Partida> listarPartidasPorUsuario(Long usuarioId)
+    +Resultado<Partida> desistirPartida(Long partidaId)
+  }
+  
+  class EquipeService {
+    -EquipeRepository equipeRepository
+    -JogadorHumanoRepository jogadorRepository
+    +List<EquipeDTO> listarEquipes()
+    +Resultado<EquipeDTO> buscarPorId(Long id)
+    +Resultado<EquipeDTO> criarEquipe(EquipeDTO equipeDTO)
+    +Resultado<EquipeDTO> atualizarEquipe(Long id, EquipeDTO equipeDTO)
+    +Resultado<?> excluirEquipe(Long id)
+    +Resultado<?> adicionarJogador(Long equipeId, Long jogadorId)
+    +Resultado<?> removerJogador(Long equipeId, Long jogadorId)
+    +List<EquipeDTO> obterRankingEquipes()
+    +Resultado<EquipeDTO> obterEstatisticasEquipe(Long equipeId)
+    +List<EquipeDTO> buscarPorNomeParcial(String nomeParcial)
+    +List<EquipeDTO> buscarEquipesComPontuacaoSuperior(int pontuacao)
+    +boolean existeEquipeComNome(String nome)
+    +List<EquipeDTO> buscarEquipesComMinimoJogadores(int quantidade)
+    +List<EquipeDTO> obterTopEquipes(int quantidade)
+  }
+  
+  class JogadorService {
+    -PalavraRepository palavraRepository
+    -PalavraService palavraService
+    -List<Jogador> jogadoresAtivos
+    +void registrarJogador(Jogador jogador)
+    +boolean removerJogador(Jogador jogador)
+    +Palavra escolherPalavraPara(JogadorBot bot)
+    +Palavra escolherPalavraPara(JogadorHumano humano, Usuario usuario)
+    +int calcularPontuacaoFinal(Jogador jogador, int tentativasRestantes, int tamanhoPalavra)
+  }
+  
+  class UsuarioService {
+    -UsuarioRepository usuarioRepository
+    -PartidaRepository partidaRepository
+    +Usuario cadastrarUsuario(Usuario usuario)
+    +Usuario autenticar(String login, String senha)
+    +void apagarHistoricoPalavras(Long usuarioId)
+  }
+  
+  class PalavraService {
+    -PalavraRepository palavraRepository
+    -Random random
+    +Palavra obterPalavraAleatoria(Usuario usuario)
+    +Palavra criarPalavraCustomizada(String palavraSecreta, String dica)
+    +List<Palavra> listarPalavras()
+  }
+  
+  class RankingService {
+    -UsuarioRepository usuarioRepository
+    +List<RankingDTO> obterRanking()
+  }
+  
+  class ExemploGenericoService {
+    -Repositorio<Usuario, Long> repositorioUsuarios
+    -Repositorio<Palavra, Long> repositorioPalavras
+    +Usuario salvarUsuario(Usuario usuario, Long id)
+    +String obterNomeUsuario(Long id)
+    +void salvarPalavras(List<Palavra> palavras)
+    +List<String> obterTodasAsDicas()
+  }
+  
+  abstract class AbstractService<T extends BaseEntity, ID> {
+    +Resultado<T> buscarPorId(ID id)
+    +List<T> listarTodos()
+    +Resultado<T> salvar(T entidade)
+    +Resultado<?> excluir(ID id)
+    #{abstract} JpaRepository<T, ID> getRepository()
+  }
+}
+
+package "repository" {
+  interface EquipeRepository {
+    +List<Equipe> findByNomeContainingIgnoreCase(String nome)
+    +List<Equipe> findByPontuacaoTotalGreaterThan(int pontuacao)
+    +Optional<Equipe> findByNomeEquals(String nome)
+    +List<Equipe> findByMinimumNumberOfPlayers(int quantidade)
+    +List<Equipe> findTopByPontuacao(int limit)
+  }
+  
+  interface JogadorHumanoRepository {
+  }
+  
+  interface PartidaRepository {
+    +List<Partida> findByUsuarioOrderByDataInicioDesc(Usuario usuario)
+  }
+  
+  interface PalavraRepository {
+  }
+  
+  interface UsuarioRepository {
+    +Optional<Usuario> findByLogin(String login)
+  }
+}
+
+package "controller" {
+  class PartidaController {
+    -PartidaService partidaService
+    +ResponseEntity<?> iniciarPartida(IniciarPartidaDTO iniciarPartidaDTO)
+    +ResponseEntity<?> tentarLetra(Long partidaId, TentativaDTO tentativa)
+    +ResponseEntity<List<PartidaDTO>> listarPartidasUsuario(Long usuarioId)
+    +ResponseEntity<?> getPartida(Long partidaId)
+    +ResponseEntity<?> desistirPartida(Long partidaId)
+  }
+  
+  class EquipeController {
+    -EquipeService equipeService
+    +ResponseEntity<List<EquipeDTO>> listarEquipes()
+    +ResponseEntity<?> buscarEquipe(Long id)
+    +ResponseEntity<?> criarEquipe(EquipeDTO equipeDTO)
+    +ResponseEntity<?> atualizarEquipe(Long id, EquipeDTO equipeDTO)
+    +ResponseEntity<?> excluirEquipe(Long id)
+    +ResponseEntity<?> adicionarJogador(Long equipeId, Long jogadorId)
+    +ResponseEntity<?> removerJogador(Long equipeId, Long jogadorId)
+    +ResponseEntity<List<EquipeDTO>> obterRanking()
+    +ResponseEntity<?> obterEstatisticas(Long id)
+    +ResponseEntity<List<EquipeDTO>> buscarPorNome(String nome)
+    +ResponseEntity<List<EquipeDTO>> buscarPorPontuacao(int pontuacao)
+    +ResponseEntity<List<EquipeDTO>> buscarComMinimoJogadores(int quantidade)
+    +ResponseEntity<List<EquipeDTO>> obterTopEquipes(int quantidade)
+  }
+  
+  class UsuarioController {
+    -UsuarioService usuarioService
+    -RankingService rankingService
+    +ResponseEntity<?> cadastrar(Usuario usuario)
+    +ResponseEntity<?> autenticar(String login, String senha)
+    +ResponseEntity<?> apagarHistoricoPalavras(Long usuarioId)
+    +ResponseEntity<List<RankingDTO>> obterRanking()
+  }
+  
+  class PalavraController {
+    -PalavraService palavraService
+    +ResponseEntity<List<PalavraDTO>> listarPalavras()
+    +ResponseEntity<?> criarPalavra(PalavraDTO palavraDTO)
+  }
+}
+
+package "util" {
+  class Resultado<T> {
+    -boolean sucesso
+    -String mensagem
+    -T dados
+    +Resultado(boolean sucesso, String mensagem, T dados)
+    +static <T> Resultado<T> sucesso(T dados)
+    +static <T> Resultado<T> sucesso(String mensagem, T dados)
+    +static <T> Resultado<T> falha(String mensagem)
+    +static <T> Resultado<T> erro(String mensagem)
+    +boolean isSucesso()
+    +String getMensagem()
+    +T getDados()
+  }
+  
+  class Repositorio<T, ID> {
+    -Map<ID, T> elementos
+    +T salvar(ID id, T elemento)
+    +Optional<T> buscarPorId(ID id)
+    +List<T> listarTodos()
+    +boolean remover(ID id)
+    +int tamanho()
+    +<V> Optional<V> processar(ID id, Processador<T, V> processador)
+  }
+  
+  interface "Processador"<T, R> {
+    +R processar(T elemento)
+  }
+}
+
+package "interfaces" {
+  interface EstatisticaCalculavel {
+    +double calcularWinRate()
+    +int getTotalPartidas()
+    +int getVitorias()
+    +int getDerrotas()
+  }
+}
+
+' ----- Relações de herança -----
+BaseEntity <|-- Jogador
+Jogador <|-- JogadorHumano
+Jogador <|-- JogadorBot
+BaseEntity <|-- Usuario
+BaseEntity <|-- Palavra
+BaseEntity <|-- Partida
+BaseEntity <|-- LetraTentada
+BaseEntity <|-- Equipe
+
+BaseDTO <|-- PartidaDTO
+PartidaDTO <|-- PartidaDetalhadaDTO
+PartidaDTO <|-- PartidaResumidaDTO
+BaseDTO <|-- EquipeDTO
+BaseDTO <|-- UsuarioDTO
+BaseDTO <|-- PalavraDTO
+BaseDTO <|-- JogadorDTO
+BaseDTO <|-- RankingDTO
+
+JpaRepository <|-- EquipeRepository
+JpaRepository <|-- JogadorHumanoRepository
+JpaRepository <|-- PartidaRepository
+JpaRepository <|-- PalavraRepository
+JpaRepository <|-- UsuarioRepository
+
+' ----- Implementações de interfaces -----
+Usuario ..|> EstatisticaCalculavel
+Processador ..> Repositorio : <<inner interface>>
+
+' ----- Relações entre classes -----
+Partida "1" *-- "1" EstadoDaForca : possui >
+Partida "1" *-- "1" Palavra : possui >
+Partida "1" *-- "*" LetraTentada : contém >
+Partida "*" --o "1" Usuario : < pertence a
+Jogador "1" *-- "1" ConfiguracaoJogador : possui >
+Equipe "1" o-- "*" JogadorHumano : contém >
+LetraTentada "*" --o "1" Partida : < pertence a
+StatusPartida -- Partida : < status
+
+' ----- Associações entre DTOs e entidades -----
+PartidaDTO ..> Partida : converte
+EquipeDTO ..> Equipe : converte
+UsuarioDTO ..> Usuario : converte
+PalavraDTO ..> Palavra : converte
+JogadorDTO ..> Jogador : converte
+RankingDTO ..> Usuario : converte
+TentativaDTO ..> LetraTentada : converte
+
+' ----- Services e Repositories -----
+JogadorService "1" o-- "*" Jogador : agrega
+PartidaService --> PartidaRepository : usa >
+PartidaService --> UsuarioRepository : usa >
+PartidaService --> PalavraService : usa >
+EquipeService --> EquipeRepository : usa >
+EquipeService --> JogadorHumanoRepository : usa >
+UsuarioService --> UsuarioRepository : usa >
+UsuarioService --> PartidaRepository : usa >
+PalavraService --> PalavraRepository : usa >
+RankingService --> UsuarioRepository : usa >
+ExemploGenericoService --> Repositorio : usa >
+
+' ----- Controllers -----
+PartidaController --> PartidaService : usa >
+EquipeController --> EquipeService : usa >
+UsuarioController --> UsuarioService : usa >
+UsuarioController --> RankingService : usa >
+PalavraController --> PalavraService : usa >
+
+@enduml

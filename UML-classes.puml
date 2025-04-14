@@ -1,0 +1,224 @@
+@startuml "Jogo da Forca - Modelo de Classes"
+
+' Classes abstratas e interfaces
+abstract class BaseEntity {
+  -Long id
+  -LocalDateTime criadoEm
+  -LocalDateTime atualizadoEm
+  #void onCreate()
+  #void onUpdate()
+  +Long getId()
+  +void setId(Long)
+  +LocalDateTime getCriadoEm()
+  +void setCriadoEm(LocalDateTime)
+  +LocalDateTime getAtualizadoEm()
+  +void setAtualizadoEm(LocalDateTime)
+  +{abstract} Object toDTO()
+}
+
+abstract class Jogador {
+  -String nome
+  #int nivel
+  ~int experiencia
+  +String tipoJogador
+  -ConfiguracaoJogador configuracao
+  -void metodoPrivado()
+  #void metodoProtegido()
+  ~void metodoPackage()
+  +void metodoPublico()
+  +{abstract} Palavra escolherPalavra()
+  +int calcularPontuacao(int, int)
+  +String getNome()
+  +void setNome(String)
+  +ConfiguracaoJogador getConfiguracao()
+  +void setConfiguracao(ConfiguracaoJogador)
+}
+
+interface EstatisticaCalculavel {
+  +double calcularWinRate()
+  +int getTotalPartidas()
+  +int getVitorias()
+  +int getDerrotas()
+}
+
+' Classes concretas do modelo
+class Palavra {
+  -String palavraSecreta
+  -String dica
+  +Palavra()
+  +Palavra(String, String)
+  +Palavra(String, String, Long)
+  +boolean contemLetra(char)
+  +boolean contemLetra(char, boolean)
+  +boolean contemLetra(String)
+  +String formatarPalavra()
+  +String formatarPalavra(char[])
+  +String getPalavraSecreta()
+  +void setPalavraSecreta(String)
+  +String getDica()
+  +void setDica(String)
+}
+
+class Partida {
+  -static final int TENTATIVAS_PADRAO
+  -static final int TENTATIVAS_FACIL
+  -static final int TENTATIVAS_DIFICIL
+  -LocalDateTime dataInicio
+  -LocalDateTime dataFim
+  -StatusPartida status
+  +Partida()
+  +Partida(Usuario, Palavra)
+  +Partida(Usuario, Palavra, String)
+  +String getPalavraAtual()
+  +boolean contemLetraTentada(char)
+  +boolean tentarLetra(char)
+  +void desistir()
+  -void finalizarComoVitoria()
+  -void finalizarComoDerrota()
+  +Usuario getUsuario()
+  +void setUsuario(Usuario)
+  +Palavra getPalavra()
+  +void setPalavra(Palavra)
+  +EstadoDaForca getEstado()
+  +void setEstado(EstadoDaForca)
+  +List<LetraTentada> getLetrasTentadas()
+  +StatusPartida getStatus()
+  +void setStatus(StatusPartida)
+  +LocalDateTime getDataInicio()
+  +LocalDateTime getDataFim()
+}
+
+class EstadoDaForca {
+  -Long id
+  -int tentativasRestantes
+  -String letrasCorretas
+  -String letrasErradas
+  +EstadoDaForca()
+  +Set<Character> getLetrasCorretasSet()
+  +Set<Character> getLetrasErradasSet()
+  +int getTentativasRestantes()
+  +void setTentativasRestantes(int)
+  +String getLetrasCorretas()
+  +void setLetrasCorretas(String)
+  +String getLetrasErradas()
+  +void setLetrasErradas(String)
+  +void adicionarLetraCorreta(char)
+  +void adicionarLetraErrada(char)
+  +boolean todasLetrasDescobertas(String)
+  +boolean verificarDerrota()
+  +String getPalavraAtual(String)
+}
+
+class LetraTentada {
+  -char letra
+  -boolean acerto
+  -LocalDateTime dataHora
+  -Partida partida
+  +LetraTentada()
+  +LetraTentada(char, boolean)
+  +char getLetra()
+  +void setLetra(char)
+  +boolean isAcerto()
+  +void setAcerto(boolean)
+  +LocalDateTime getDataHora()
+  +void setDataHora(LocalDateTime)
+  +Partida getPartida()
+  +void setPartida(Partida)
+}
+
+class JogadorHumano {
+  -Equipe equipe
+  +Equipe getEquipe()
+  +void setEquipe(Equipe)
+  +Palavra escolherPalavra()
+  +int calcularPontuacao(int, int)
+}
+
+class JogadorBot {
+  -Random random
+  +Palavra escolherPalavra()
+}
+
+class Usuario {
+  -String nome
+  -String login
+  -String senha
+  -int vitorias
+  -int derrotas
+  -List<Partida> partidas
+  +String getNome()
+  +void setNome(String)
+  +String getLogin()
+  +void setLogin(String)
+  +String getSenha()
+  +void setSenha(String)
+  +int getVitorias()
+  +void setVitorias(int)
+  +int getDerrotas()
+  +void setDerrotas(int)
+  +List<Partida> getPartidas()
+  +void setPartidas(List<Partida>)
+  +double calcularWinRate()
+  +int getTotalPartidas()
+  +void incrementarVitorias()
+  +void incrementarDerrotas()
+}
+
+class Equipe {
+  -String nome
+  -int pontuacaoTotal
+  -List<JogadorHumano> jogadores
+  +void adicionarJogador(JogadorHumano)
+  +void removerJogador(JogadorHumano)
+  +void atualizarPontuacaoTotal()
+  +String getNome()
+  +void setNome(String)
+  +int getPontuacaoTotal()
+  +List<JogadorHumano> getJogadores()
+}
+
+class ConfiguracaoJogador {
+  -String tema
+  -String dificuldade
+  -boolean notificacoesAtivadas
+  +ConfiguracaoJogador()
+  +ConfiguracaoJogador(String, String, boolean)
+  +String getTema()
+  +void setTema(String)
+  +String getDificuldade()
+  +void setDificuldade(String)
+  +boolean isNotificacoesAtivadas()
+  +void setNotificacoesAtivadas(boolean)
+}
+
+enum StatusPartida {
+  EM_ANDAMENTO
+  VENCEU
+  PERDEU
+  DESISTIU
+}
+
+' Relações de herança
+BaseEntity <|-- Jogador
+Jogador <|-- JogadorHumano
+Jogador <|-- JogadorBot
+BaseEntity <|-- Usuario
+BaseEntity <|-- Palavra
+BaseEntity <|-- Partida
+BaseEntity <|-- LetraTentada
+BaseEntity <|-- Equipe
+
+' Implementações de interfaces
+Usuario ..|> EstatisticaCalculavel
+
+' Relações entre classes
+Partida "1" *-- "1" EstadoDaForca : possui >
+Partida "1" *-- "1" Palavra : possui >
+Partida "1" o-- "*" LetraTentada : contém >
+Partida "*" --o "1" Usuario : < pertence a
+Jogador "1" *-- "1" ConfiguracaoJogador : possui >
+Equipe "1" o-- "*" JogadorHumano : contém >
+LetraTentada "*" --o "1" Partida : < pertence a
+StatusPartida -- Partida : < status
+
+@enduml
