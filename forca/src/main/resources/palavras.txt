@@ -23,3 +23,93 @@ vue,Framework JavaScript progressivo
 frontend,Parte visual de uma aplicação
 backend,Parte do servidor de uma aplicação
 fullstack,Desenvolvedor que trabalha em ambas partes
+astronomia,Ciência que estuda os astros
+constelacao,Grupo de estrelas que forma uma figura
+telescopio,Instrumento para observar objetos distantes
+cometa,Corpo celeste com cauda brilhante
+eclipse,Ocultação total ou parcial de um astro
+galaxia,Conjunto gigantesco de estrelas e planetas
+nebulosa,Nuvem interestelar de gases e poeira
+universo,Todo o espaço e tempo existente
+foguete,Veículo para viagens espaciais
+gravidade,Força que atrai os corpos para o centro
+botanica,Estudo científico das plantas
+fotossintese,Processo pelo qual plantas produzem alimento
+clorofila,Pigmento verde das plantas
+biodiversidade,Variedade de vida em um ecossistema
+ecologia,Estudo das relações entre seres vivos
+polinizacao,Transferência de pólen entre flores
+decomposicao,Processo natural de degradação orgânica
+pantanal,Maior área úmida continental do planeta
+caatinga,Bioma exclusivamente brasileiro
+orquidea,Flor conhecida por sua beleza exótica
+gastronomia,Arte de preparar alimentos
+fermentacao,Processo que transforma açúcar em álcool
+tempero,Condimento para realçar sabor
+receita,Conjunto de instruções para preparar um prato
+confeitaria,Arte de fazer doces e bolos
+culinaria,Conjunto de práticas de cozinha
+degustacao,Ato de provar alimentos com atenção
+harmonizacao,Combinação ideal entre comida e bebida
+banquete,Refeição abundante e festiva
+gourmet,Comida refinada e sofisticada
+literatura,Arte de escrever obras artísticas
+metafora,Figura de linguagem que faz comparação
+personagem,Ser que participa da ação em uma história
+narrativa,Exposição de uma sequência de fatos
+romance,Gênero literário em prosa extenso
+poesia,Forma de expressão artística em versos
+biografia,História da vida de uma pessoa
+resenha,Análise crítica de uma obra
+teatro,Representação de histórias diante do público
+fabula,Narração curta com lição moral
+arquitetura,Arte de projetar construções
+alicerce,Base que sustenta uma construção
+estrutura,Organização das partes de um todo
+fachada,Parte frontal de um edifício
+perspectiva,Técnica para representar objetos tridimensionais
+simetria,Correspondência exata em forma e posição
+contraste,Oposição marcante entre elementos
+urbanismo,Planejamento de áreas urbanas
+paisagismo,Arte de projetar espaços externos
+restauracao,Recuperação de elementos originais
+mitologia,Conjunto de mitos de uma cultura
+titã,Deidade primordial na mitologia grega
+valquíria,Guerreira divina na mitologia nórdica
+olimpo,Morada dos deuses gregos
+labirinto,Construção com caminhos confusos
+minotauro,Criatura metade homem e metade touro
+fenix,Ave lendária que renasce das cinzas
+dragao,Criatura mitológica que cospe fogo
+quimera,Monstro híbrido da mitologia grega
+basilisco,Réptil lendário com olhar mortal
+esporte,Atividade física com regras definidas
+torcida,Conjunto de apoiadores de um time
+arbitragem,Conjunto de juízes em competições
+campeonato,Competição esportiva com várias fases
+atleta,Praticante de atividade esportiva
+medalha,Prêmio por conquista esportiva
+maratona,Corrida de longa distância
+drible,Movimento para desviar do adversário
+estrategia,Plano para alcançar um objetivo
+recordista,Detentor de marca histórica
+cinema,Arte de criar e projetar filmes
+montagem,Processo de edição de um filme
+roteiro,Texto com diálogos e instruções para filme
+figurino,Conjunto de roupas usadas por atores
+fotografia,Captura de imagens com câmera
+cenario,Ambiente onde se passa uma cena
+elenco,Grupo de atores em uma produção
+diretor,Pessoa que orienta a produção de um filme
+cineasta,Profissional que realiza filmes
+bilheteria,Sucesso financeiro de um filme
+medicina,Ciência que trata da saúde humana
+diagnostico,Identificação de uma doença
+tratamento,Conjunto de meios para curar doença
+paciente,Pessoa sob cuidados médicos
+anatomia,Estudo da estrutura do corpo
+imunidade,Resistência natural a doenças
+patologia,Estudo das doenças e suas causas
+cirurgia,Intervenção operatória em paciente
+prognóstico,Previsão sobre evolução de doença
+vacina,Substância para prevenção de doenças
