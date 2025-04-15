@@ -262,6 +262,23 @@ document.addEventListener('DOMContentLoaded', () => {
     jogo.forcaImg.src = `/img/forca-estados/forca${indiceImagem}.png`;
     
     jogo.btnDesistir.disabled = false;
+
+    // Atualizar visualmente o teclado
+    const tecladoBotoes = jogo.teclado.querySelectorAll('button');
+    tecladoBotoes.forEach(botao => {
+      const letra = botao.textContent.toLowerCase();
+      
+      // Aqui está o problema: verificar corretamente se a letra foi acertada
+      if (partidaAtual.letrasCorretas && partidaAtual.letrasCorretas.includes(letra)) {
+        botao.classList.add('acerto'); // Adicionar classe de acerto
+        botao.classList.remove('erro'); // Remover classe de erro, caso exista
+        botao.disabled = true;
+      } else if (partidaAtual.letrasErradas && partidaAtual.letrasErradas.includes(letra)) {
+        botao.classList.add('erro'); // Adicionar classe de erro
+        botao.classList.remove('acerto'); // Remover classe de acerto, caso exista
+        botao.disabled = true;
+      }
+    });
   }
   
   // Função para carregar o ranking - versão corrigida
