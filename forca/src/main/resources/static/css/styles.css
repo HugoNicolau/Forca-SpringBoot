@@ -372,7 +372,6 @@ table tr:nth-child(even) {
   text-align: center;
 }
 
-/* Adicione no final do arquivo */
 .equipe-actions {
   display: flex;
   gap: 1rem;

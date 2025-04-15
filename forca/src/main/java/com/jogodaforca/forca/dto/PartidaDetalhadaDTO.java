@@ -38,7 +38,6 @@ public class PartidaDetalhadaDTO extends PartidaDTO {
         return dto;
     }
 
-    // Adicione este construtor à classe PartidaDetalhadaDTO
     /**
      * CONCEITO: REUSO DE CÓDIGO
      * - Construtor que permite criar um DTO detalhado a partir de um DTO base
