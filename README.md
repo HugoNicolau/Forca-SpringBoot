@@ -292,4 +292,3 @@ Para visualizar os diagramas PlantUML, você pode:
 ## Licença
 
 Este projeto está licenciado sob a licença MIT - consulte o arquivo LICENSE para obter detalhes.
-```
