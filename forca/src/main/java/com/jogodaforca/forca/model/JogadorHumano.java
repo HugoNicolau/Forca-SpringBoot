@@ -5,6 +5,7 @@ import com.jogodaforca.forca.dto.JogadorDTO;
 import jakarta.persistence.Entity;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToOne;
 
 /**
  * CONCEITO: ESPECIALIZAÇÃO DE CLASSE ABSTRATA
@@ -23,6 +24,9 @@ public class JogadorHumano extends Jogador {
     @JoinColumn(name = "equipe_id")
     private Equipe equipe;
 
+    @OneToOne
+    private Usuario usuario;
+
     // Getters e Setters para a associação
     public Equipe getEquipe() {
         return equipe;
@@ -30,6 +34,14 @@ public class JogadorHumano extends Jogador {
 
     public void setEquipe(Equipe equipe) {
         this.equipe = equipe;
+    }
+
+    public Usuario getUsuario() {
+        return usuario;
+    }
+
+    public void setUsuario(Usuario usuario) {
+        this.usuario = usuario;
     }
 
     /**

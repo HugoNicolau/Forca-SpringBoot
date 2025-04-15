@@ -105,6 +105,10 @@ const API = {
   async removerJogadorEquipe(equipeId, jogadorId) {
     return this.delete(`${this.BASE_URL}/equipes/${equipeId}/jogadores/${jogadorId}`);
   },
+
+  async listarJogadoresEquipe(equipeId) {
+    return this.get(`${this.BASE_URL}/equipes/${equipeId}/jogadores`);
+  },
   
   async obterRankingEquipes() {
     return this.get(`${this.BASE_URL}/equipes/ranking`);
@@ -112,6 +116,10 @@ const API = {
   
   async buscarEquipesPorNome(nome) {
     return this.get(`${this.BASE_URL}/equipes/busca?nome=${encodeURIComponent(nome)}`);
+  },
+
+  async obterJogadorPorUsuario(usuarioId) {
+    return this.get(`${this.BASE_URL}/jogadores/usuario/${usuarioId}`);
   },
   
   // Métodos HTTP genéricos

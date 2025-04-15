@@ -371,3 +371,33 @@ table tr:nth-child(even) {
 .text-center {
   text-align: center;
 }
+
+/* Adicione no final do arquivo */
+.equipe-actions {
+  display: flex;
+  gap: 1rem;
+  margin: 1.5rem 0;
+}
+
+.equipe-jogadores {
+  margin-top: 2rem;
+}
+
+.equipe-jogadores h3 {
+  margin-bottom: 1rem;
+  color: var(--primary-color);
+}
+
+.equipe-jogadores ul {
+  list-style: none;
+  padding: 0;
+}
+
+.equipe-jogadores li {
+  padding: 0.5rem 0;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.equipe-jogadores li:last-child {
+  border-bottom: none;
+}

@@ -193,15 +193,22 @@
         </div>
 
         <div id="equipe-detalhe" class="hidden">
-            <h3 id="equipe-detalhe-nome"></h3>
-            <p>Pontuação Total: <span id="equipe-detalhe-pontuacao"></span></p>
-            <p>Jogadores: <span id="equipe-detalhe-qtd-jogadores"></span></p>
-
-            <h4>Jogadores da Equipe</h4>
-            <ul id="equipe-jogadores-lista">
-                <!-- Preenchido dinamicamente pelo JavaScript -->
-            </ul>
-
+            <h2 id="equipe-detalhe-nome"></h2>
+            <div class="equipe-info">
+                <p>Pontuação: <span id="equipe-detalhe-pontuacao"></span></p>
+                <p>Jogadores: <span id="equipe-detalhe-qtd-jogadores"></span></p>
+            </div>
+            
+            <div class="equipe-actions">
+                <button id="entrar-equipe" class="btn-primary">Entrar na Equipe</button>
+                <button id="sair-equipe" class="btn-danger hidden">Sair da Equipe</button>
+            </div>
+            
+            <div class="equipe-jogadores">
+                <h3>Jogadores</h3>
+                <ul id="equipe-jogadores-lista"></ul>
+            </div>
+            
             <button id="voltar-equipes" class="btn-secondary">Voltar</button>
         </div>
     </div>

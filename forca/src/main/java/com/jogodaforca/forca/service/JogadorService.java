@@ -2,17 +2,23 @@ package com.jogodaforca.forca.service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.Random;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import com.jogodaforca.forca.dto.JogadorDTO;
 import com.jogodaforca.forca.model.Jogador;
 import com.jogodaforca.forca.model.JogadorBot;
 import com.jogodaforca.forca.model.JogadorHumano;
 import com.jogodaforca.forca.model.Palavra;
 import com.jogodaforca.forca.model.Usuario;
+import com.jogodaforca.forca.repository.JogadorHumanoRepository;
 import com.jogodaforca.forca.repository.PalavraRepository;
+import com.jogodaforca.forca.repository.UsuarioRepository;
+import com.jogodaforca.forca.util.Resultado;
 
 /**
  * CONCEITO: SERVIÇO
@@ -28,6 +34,12 @@ public class JogadorService {
     
     @Autowired
     private PalavraService palavraService;
+    
+    @Autowired
+    private JogadorHumanoRepository jogadorHumanoRepository;
+    
+    @Autowired
+    private UsuarioRepository usuarioRepository;
     
     /**
      * CONCEITO: AGREGAÇÃO
@@ -128,5 +140,47 @@ public class JogadorService {
         
         // Adiciona lógica adicional específica do serviço
         return pontuacaoBase * 10; // Multiplicador para pontuação final
+    }
+
+    /**
+     * Busca um jogador humano pelo ID do usuário associado.
+     * 
+     * @param usuarioId ID do usuário
+     * @return Resultado contendo o DTO do jogador ou mensagem de erro
+     */
+    @Transactional
+    public Resultado<JogadorDTO> obterJogadorPorUsuario(Long usuarioId) {
+        // Buscar o usuário pelo ID
+        Optional<Usuario> usuarioOptional = usuarioRepository.findById(usuarioId);
+        
+        if (usuarioOptional.isEmpty()) {
+            return Resultado.falha("Usuário não encontrado");
+        }
+        
+        Usuario usuario = usuarioOptional.get();
+        
+        // Buscar jogador humano associado a este usuário
+        Optional<JogadorHumano> jogadorOptional = jogadorHumanoRepository.findByUsuario(usuario);
+        
+        JogadorHumano jogador;
+        
+        if (jogadorOptional.isEmpty()) {
+            // Se não existir um jogador para este usuário, vamos criar um
+            jogador = new JogadorHumano();
+            jogador.setUsuario(usuario);
+            jogador.setNome(usuario.getNome());
+            jogador = jogadorHumanoRepository.save(jogador);
+        } else {
+            jogador = jogadorOptional.get();
+        }
+        
+        // Converter para DTO
+        JogadorDTO jogadorDTO = new JogadorDTO();
+        jogadorDTO.setId(jogador.getId());
+        jogadorDTO.setNome(jogador.getNome());
+        jogadorDTO.setTipo("HUMANO");
+        jogadorDTO.setUsuarioId(usuario.getId());
+        
+        return Resultado.sucesso(jogadorDTO);
     }
 }

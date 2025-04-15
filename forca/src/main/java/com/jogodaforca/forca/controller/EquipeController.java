@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.jogodaforca.forca.dto.EquipeDTO;
+import com.jogodaforca.forca.dto.JogadorDTO;
 import com.jogodaforca.forca.service.EquipeService;
 import com.jogodaforca.forca.util.Resultado;
 
@@ -224,5 +225,22 @@ public class EquipeController {
     public ResponseEntity<List<EquipeDTO>> obterTopEquipes(@RequestParam(defaultValue = "10") int quantidade) {
         List<EquipeDTO> equipes = equipeService.obterTopEquipes(quantidade);
         return ResponseEntity.ok(equipes);
+    }
+
+    /**
+     * Lista todos os jogadores de uma equipe.
+     * 
+     * @param id ID da equipe
+     * @return Lista de jogadores da equipe ou erro 404 se a equipe não for encontrada
+     */
+    @GetMapping("/{id}/jogadores")
+    public ResponseEntity<?> listarJogadoresEquipe(@PathVariable Long id) {
+        Resultado<List<JogadorDTO>> resultado = equipeService.listarJogadoresEquipe(id);
+        
+        if (resultado.isSucesso()) {
+            return ResponseEntity.ok(resultado.getDados());
+        } else {
+            return ResponseEntity.notFound().build();
+        }
     }
 }

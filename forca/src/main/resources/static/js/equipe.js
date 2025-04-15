@@ -2,6 +2,25 @@
  * Gerenciamento das Equipes
  */
 document.addEventListener('DOMContentLoaded', () => {
+  // Primeiro, vamos garantir que temos acesso ao usuário logado
+  let usuarioLogado = null;
+  
+  // Função para carregar o usuário logado do localStorage
+  function carregarUsuarioLogado() {
+    const usuarioString = localStorage.getItem('usuario');
+    if (usuarioString) {
+      try {
+        usuarioLogado = JSON.parse(usuarioString);
+        console.log('Usuário logado carregado:', usuarioLogado);
+      } catch (e) {
+        console.error('Erro ao carregar usuário do localStorage:', e);
+      }
+    }
+  }
+  
+  // Carregar o usuário no início
+  carregarUsuarioLogado();
+  
   const equipes = {
     lista: document.getElementById('equipes-lista'),
     modal: document.getElementById('equipe-modal'),
@@ -14,10 +33,13 @@ document.addEventListener('DOMContentLoaded', () => {
     detalhePontuacao: document.getElementById('equipe-detalhe-pontuacao'),
     detalheQtdJogadores: document.getElementById('equipe-detalhe-qtd-jogadores'),
     jogadoresLista: document.getElementById('equipe-jogadores-lista'),
-    btnVoltarEquipes: document.getElementById('voltar-equipes')
+    btnVoltarEquipes: document.getElementById('voltar-equipes'),
+    btnEntrarEquipe: document.getElementById('entrar-equipe'),
+    btnSairEquipe: document.getElementById('sair-equipe'),
   };
   
   let equipeAtual = null;
+  let pertenceEquipeAtual = false;
   
   // Carregar lista de equipes
   async function carregarEquipes() {
@@ -68,10 +90,117 @@ document.addEventListener('DOMContentLoaded', () => {
       equipes.detalhe.classList.remove('hidden');
       equipes.btnNovaEquipe.classList.add('hidden');
       
-      // Carregar jogadores da equipe (considerando que o backend fornece essa informação)
+      // Verificar se o usuário logado já pertence a esta equipe
+      pertenceEquipeAtual = await verificarPertencimentoEquipe(equipeId);
+      
+      // Atualizar visibilidade dos botões baseado na verificação
+      if (pertenceEquipeAtual) {
+        equipes.btnEntrarEquipe.classList.add('hidden');
+        equipes.btnSairEquipe.classList.remove('hidden');
+      } else {
+        equipes.btnEntrarEquipe.classList.remove('hidden');
+        equipes.btnSairEquipe.classList.add('hidden');
+      }
+      
+      // Carregar jogadores da equipe
       carregarJogadoresDaEquipe(equipeId);
     } catch (error) {
       alert(`Erro ao carregar detalhes da equipe: ${error}`);
+    }
+  }
+  
+  // Verifica se o usuário logado pertence à equipe
+  async function verificarPertencimentoEquipe(equipeId) {
+    carregarUsuarioLogado(); // Recarregar usuário logado para ter certeza
+    
+    try {
+      if (!usuarioLogado) return false;
+      
+      // Obter jogador associado ao usuário
+      const jogador = await API.obterJogadorPorUsuario(usuarioLogado.id);
+      if (!jogador) return false;
+      
+      // Verificar se este jogador está na lista de jogadores da equipe
+      const jogadores = await API.listarJogadoresEquipe(equipeId);
+      return jogadores.some(j => j.id === jogador.id);
+    } catch (error) {
+      console.error('Erro ao verificar pertencimento à equipe:', error);
+      return false;
+    }
+  }
+  
+  // Entrar em uma equipe
+  async function entrarEquipe() {
+    // Verificar novamente se o usuário está logado
+    carregarUsuarioLogado();
+    
+    if (!usuarioLogado) {
+      alert('Você precisa estar logado para entrar em uma equipe');
+      return;
+    }
+    
+    console.log('Tentando entrar na equipe. Usuário:', usuarioLogado.id, 'Equipe:', equipeAtual.id);
+    
+    try {
+      // Primeiro precisamos obter o ID do JogadorHumano associado ao usuário logado
+      const response = await API.obterJogadorPorUsuario(usuarioLogado.id);
+      const jogadorId = response.id;
+      
+      if (!jogadorId) {
+        alert('Não foi possível encontrar seu perfil de jogador.');
+        return;
+      }
+      
+      console.log('JogadorID obtido:', jogadorId);
+      
+      // Agora sim adicionamos o jogador à equipe
+      const resultado = await API.adicionarJogadorEquipe(equipeAtual.id, jogadorId);
+      
+      alert('Você entrou na equipe com sucesso!');
+      pertenceEquipeAtual = true;
+      equipes.btnEntrarEquipe.classList.add('hidden');
+      equipes.btnSairEquipe.classList.remove('hidden');
+      
+      // Recarregar a lista de jogadores
+      carregarJogadoresDaEquipe(equipeAtual.id);
+    } catch (error) {
+      console.error('Erro ao entrar na equipe:', error);
+      alert(`Erro ao entrar na equipe: ${error.message || error}`);
+    }
+  }
+  
+  // Sair de uma equipe
+  async function sairEquipe() {
+    // Verificar novamente se o usuário está logado
+    carregarUsuarioLogado();
+    
+    if (!usuarioLogado) {
+      return;
+    }
+    
+    try {
+      // Primeiro precisamos obter o ID do JogadorHumano associado ao usuário logado
+      const response = await API.obterJogadorPorUsuario(usuarioLogado.id);
+      const jogadorId = response.id;
+      
+      if (!jogadorId) {
+        alert('Não foi possível encontrar seu perfil de jogador.');
+        return;
+      }
+      
+      // Agora removemos o jogador da equipe
+      await API.removerJogadorEquipe(equipeAtual.id, jogadorId);
+      
+      alert('Você saiu da equipe com sucesso');
+      pertenceEquipeAtual = false;
+      equipes.btnEntrarEquipe.classList.remove('hidden');
+      equipes.btnSairEquipe.classList.add('hidden');
+      
+      // Recarregar a lista de jogadores
+      carregarJogadoresDaEquipe(equipeAtual.id);
+    } catch (error) {
+      console.error('Erro ao sair da equipe:', error);
+      alert(`Erro ao sair da equipe: ${error.message || error}`);
     }
   }
   
@@ -80,14 +209,8 @@ document.addEventListener('DOMContentLoaded', () => {
     equipes.jogadoresLista.innerHTML = '<li>Carregando jogadores...</li>';
     
     try {
-      // Supondo que temos esse endpoint que retorna os jogadores de uma equipe
-      // const jogadores = await API.listarJogadoresEquipe(equipeId);
-      
-      // Como pode não existir esse endpoint, vamos simular
-      const jogadores = [
-        { id: 1, nome: "Jogador 1" },
-        { id: 2, nome: "Jogador 2" }
-      ];
+      // Agora vamos realmente buscar os jogadores da equipe
+      const jogadores = await API.listarJogadoresEquipe(equipeId);
       
       if (jogadores && jogadores.length > 0) {
         equipes.jogadoresLista.innerHTML = '';
@@ -140,6 +263,9 @@ document.addEventListener('DOMContentLoaded', () => {
     equipes.btnNovaEquipe.classList.remove('hidden');
     equipeAtual = null;
   });
+  
+  equipes.btnEntrarEquipe.addEventListener('click', entrarEquipe);
+  equipes.btnSairEquipe.addEventListener('click', sairEquipe);
   
   // Inicialização
   window.carregarEquipes = carregarEquipes; // Expor para chamada externa

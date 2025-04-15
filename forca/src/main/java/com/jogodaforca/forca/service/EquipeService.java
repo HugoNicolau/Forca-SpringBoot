@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.jogodaforca.forca.dto.EquipeDTO;
+import com.jogodaforca.forca.dto.JogadorDTO;
 import com.jogodaforca.forca.model.Equipe;
 import com.jogodaforca.forca.model.JogadorHumano;
 import com.jogodaforca.forca.repository.EquipeRepository;
@@ -273,5 +274,37 @@ public class EquipeService {
         return topEquipes.stream()
                 .map(equipe -> (EquipeDTO) equipe.toDTO())
                 .collect(Collectors.toList());
+    }
+
+    /**
+     * Lista todos os jogadores de uma equipe.
+     * 
+     * @param equipeId ID da equipe
+     * @return Resultado contendo a lista de DTOs de jogadores ou mensagem de erro
+     */
+    public Resultado<List<JogadorDTO>> listarJogadoresEquipe(Long equipeId) {
+        return equipeRepository.findById(equipeId)
+                .map(equipe -> {
+                    List<JogadorDTO> jogadoresDTOs = equipe.getJogadores().stream()
+                            .map(jogador -> {
+                                JogadorDTO dto = new JogadorDTO();
+                                dto.setId(jogador.getId());
+                                
+                                // Verificar se o jogador tem usuário associado
+                                if (jogador.getUsuario() != null) {
+                                    dto.setNome(jogador.getUsuario().getNome());
+                                    dto.setUsuarioId(jogador.getUsuario().getId());
+                                } else {
+                                    // Se não tiver, use o nome do jogador diretamente
+                                    dto.setNome(jogador.getNome());
+                                    // Não definir usuarioId, já que não há usuário
+                                }
+                                
+                                return dto;
+                            })
+                            .collect(Collectors.toList());
+                    return Resultado.sucesso(jogadoresDTOs);
+                })
+                .orElse(Resultado.falha("Equipe não encontrada"));
     }
 }

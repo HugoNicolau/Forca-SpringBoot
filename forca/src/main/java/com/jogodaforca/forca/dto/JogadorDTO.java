@@ -11,6 +11,7 @@ public class JogadorDTO {
     private Long id;
     private String nome;
     private String tipo;
+    private Long usuarioId;
     
     /**
      * CONCEITO: CONSTRUTOR PADRÃO
@@ -43,5 +44,13 @@ public class JogadorDTO {
     
     public void setTipo(String tipo) {
         this.tipo = tipo;
+    }
+
+    public Long getUsuarioId() {
+        return usuarioId;
+    }
+
+    public void setUsuarioId(Long usuarioId) {
+        this.usuarioId = usuarioId;
     }
 }
